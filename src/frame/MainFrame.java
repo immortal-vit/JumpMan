@@ -17,6 +17,7 @@ public class MainFrame {
     private GamePanel gamePanel;
     private PanelType panelType;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    private Point mousePosition;
 
 
     public MainFrame() {
@@ -24,10 +25,9 @@ public class MainFrame {
     }
 
     private void initialize(){
-        panelType = PanelType.GAME;
+        panelType = PanelType.MENU;
         createPanels();
         createFrame();
-
 
     }
     private void createPanels(){
@@ -36,7 +36,7 @@ public class MainFrame {
 
         menuPanel = new MenuPanel(this);
         settingsPanel = new SettingsPanel(this);
-        gamePanel = new GamePanel();
+        gamePanel = new GamePanel(this);
 
         panelContainer.add(menuPanel, PanelType.MENU.name());
         panelContainer.add(settingsPanel, PanelType.SETTING.name());
@@ -58,12 +58,14 @@ public class MainFrame {
     public void switchPanel(PanelType panelType){
         if (panelType == PanelType.EXIT){
             frame.dispose();
+            return;
         }
         cardLayout.show(panelContainer, panelType.name());
+        setPanelType(panelType);
 
         if (panelType == PanelType.GAME) {
-            gamePanel.requestFocusInWindow();
             gamePanel.startGame();
+            gamePanel.requestFocusInWindow();
         } else {
             gamePanel.stopThread();
         }

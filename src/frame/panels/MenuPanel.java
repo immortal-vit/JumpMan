@@ -29,27 +29,21 @@ public class MenuPanel extends JPanel {
                     repaint();
                 }
             }
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                for (Button b : buttons) {
-                    b.updateSelected(e);
-                    repaint();
-                }
-            }
         });
         addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
+
+            @Override public void mouseClicked(MouseEvent e) {}
+            @Override public void mousePressed(MouseEvent e) {}
+            @Override public void mouseReleased(MouseEvent e) {
                 for (Button b : buttons) {
-                    b.updateSelected(e);
-                    repaint();
                     if (b.isSelected(e)){
                         frame.switchPanel(b.getWhereToRelocate());
+                    } else {
+                        b.updateSelected(e);
+                        repaint();
                     }
                 }
             }
-            @Override public void mousePressed(MouseEvent e) {}
-            @Override public void mouseReleased(MouseEvent e) {}
             @Override public void mouseEntered(MouseEvent e) {}
             @Override public void mouseExited(MouseEvent e) {}
         });

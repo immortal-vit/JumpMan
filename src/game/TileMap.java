@@ -14,6 +14,25 @@ public class TileMap {
     private float tileSize;
     private int rows, cols;
 
+    private static final int TILE_COUNT = 20;
+    private static Tile[] tileTypes = new Tile[TILE_COUNT];
+
+    /**
+     * chatgpt helped me with this.
+     * when we will load objects from a tilemap it will just load this preloaded objects instead of loading it every time when tile map changes
+     * it will load it to an array of tiles
+     * so its faster and it saves memory
+     */
+    static {
+        try {
+            tileTypes[0] = new Tile(ImageIO.read(new File("src/game/tiles/images/air.png")), false);
+            tileTypes[1] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), true);
+
+        } catch (Exception e) {
+            System.out.println("Chyba při načítání dlaždic");
+        }
+    }
+
     public TileMap(String fileName, float titleSize) {
         this.tileSize = titleSize;
         loadMap(fileName);
@@ -29,25 +48,12 @@ public class TileMap {
             for (int row = 0; row < rows; row++) {
                 String[] line = br.readLine().split(" ");
                 for (int col = 0; col < cols; col++) {
-                    int type = Integer.parseInt(line[col]);
+                    String type = String.valueOf(Integer.parseInt(line[col]));
 
-                    BufferedImage img = null;
-                    boolean isSolid = false;
+                    tiles[row][col] = tileTypes[Integer.parseInt(type)];
 
-                    switch (type) {
-                        case 0:
-                            img = ImageIO.read(new File("src/game/tiles/images/air.png"));
-                            break;
-                        case 1:
-                            img = ImageIO.read(new File("src/game/tiles/images/groundBlock.png"));
-                            isSolid = true;
-                            break;
-                    }
-
-                    tiles[row][col] = new Tile(img, isSolid);
                 }
             }
-            br.close();
         }catch (Exception e) {
             System.out.println("nepodarilo se nacist mapu");
         }

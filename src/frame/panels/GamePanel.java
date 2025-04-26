@@ -1,5 +1,7 @@
 package frame.panels;
 
+import frame.MainFrame;
+import frame.PanelType;
 import game.TileMap;
 import game.player.Direction;
 import game.player.Player;
@@ -12,6 +14,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -21,17 +25,20 @@ public class GamePanel extends JPanel implements Runnable {
     private Player player;
     private BufferedImage playerSprite;
 
-    private float titeSize = 32f;
-    private TileMap tileMap;
+    private float tileSize = 32f;
+    private Map<Integer, TileMap> floorMap = new HashMap<>();
+    private final int MAX_FLOORS = 3;
 
     private Thread gameThread;
     private boolean running = false;
+    private int floor = 0;
 
 
-    public GamePanel() {
+    public GamePanel(MainFrame mainFrame) {
+
         setFocusable(true);
-        tileMap = new TileMap("src/game/floorMap/floor0", titeSize);
 
+        loadAllFloors();
         initializePlayer();
 
         addKeyListener(new KeyAdapter() {
@@ -44,9 +51,13 @@ public class GamePanel extends JPanel implements Runnable {
                     case KeyEvent.VK_D:
                         player.setDirection(Direction.RIGHT);
                         break;
-                    case KeyEvent.VK_S:
-                        player.setDirection(Direction.STANDING);
+                    case KeyEvent.VK_ESCAPE:
+                        mainFrame.switchPanel(PanelType.MENU);
+                        player.resetChargingJump();
+                        stopThread();
                         break;
+
+
                 }
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     player.startCharging();
@@ -69,8 +80,22 @@ public class GamePanel extends JPanel implements Runnable {
         }catch (IOException e){
             System.out.println("nepodarilo se nacist hrace");
         }
-        player = new Player(100f,490f, 1.5f * titeSize, playerSprite, tileMap);
+        player = new Player(100f,500, 1.5f * tileSize, playerSprite, floorMap.get(floor), this);
         System.out.println("hrac se vytvoril");
+        player.setFloorChangeCallback(direction -> {
+            switch (direction) {
+                case UP:
+                    floor++;
+                    player.setTileMap(floorMap.get(floor));
+                    player.setY(floorMap.get(floor).getTileSize() * floorMap.get(floor).getRows() - player.getHeight());
+                    break;
+                case DOWN:
+                    floor--;
+                    player.setTileMap(floorMap.get(floor));
+                    player.setY(1);
+                    break;
+            }
+        });
     }
 
     @Override
@@ -81,7 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGame() {
-        if (gameThread == null) {
+        if (!running) {
             gameThread = new Thread(this);
             running = true;
             gameThread.start();
@@ -89,31 +114,48 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
 
+    /**
+     * chatGPT helped me with this
+     * the game logic is updating 60 times in a second
+     * the repainting is updating as soon as it can so if we have monitor that supports more than 60hz it will run at the monitor max fps
+     */
     public void run() {
+        final int TARGET_FPS = 60;
+        final double TARGET_TIME_BETWEEN_UPDATES = 1000000000.0 / TARGET_FPS;
 
-        final int FPS = 60;
-        final long frameTime = 1000 / FPS;
+        long lastUpdateTime = System.nanoTime();
+        double delta = 0;
 
         while (running) {
-            long start = System.currentTimeMillis();
+            long now = System.nanoTime();
+            double elapsedTime = now - lastUpdateTime;
+            delta += elapsedTime / TARGET_TIME_BETWEEN_UPDATES;
+            lastUpdateTime = now;
 
-            update();
+            while (delta >= 1) {
+                update();
+                delta--;
+            }
+
             repaint();
 
-            long duration = System.currentTimeMillis() - start;
-            long sleep = frameTime - duration;
-
-            if (sleep > 0) {
-                try {
-                    Thread.sleep(sleep);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                System.out.println("something went wrong in thread");
             }
         }
     }
     public void stopThread (){
         running = false;
+        try {
+            if (gameThread != null) {
+                gameThread.join();
+                gameThread = null;
+            }
+        } catch (InterruptedException e) {
+            System.out.println("neco se pokazilo pri pauzovani threadu");
+        }
     }
 
     public void update() {
@@ -133,9 +175,24 @@ public class GamePanel extends JPanel implements Runnable {
 
         g2d.scale(scaleX, scaleY);
 
-        tileMap.draw(g2d);
+        floorMap.get(floor).draw(g2d);
         player.render(g2d);
     }
+
+    /**
+     * this will load all floors
+     */
+    private void loadAllFloors() {
+        for (int i = 0; i < MAX_FLOORS; i++) {
+            floorMap.put(i, new TileMap("src/game/floorMap/floor" + i, tileSize));
+
+
+        }
+    }
+
+
+
+
 
 
 }
