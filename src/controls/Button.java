@@ -12,9 +12,10 @@ public class Button {
     private boolean selected = false;
     private final Color SELECTED_COLOR;
     private final Color DEFAULT_COLOR;
+    private final Color FONT_COLOR;
     private final PanelType whereToRelocate;
 
-    public Button(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color defaultcolor, PanelType panelType) {
+    public Button(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color defaultcolor, Color fontColor, PanelType panelType) {
         this.heightPercent = heightPercent;
         this.widthPercent = widthPercent;
         this.yPercent = yPercent;
@@ -22,6 +23,7 @@ public class Button {
         this.text = text;
         this.SELECTED_COLOR = selectedcolor;
         this.DEFAULT_COLOR = defaultcolor;
+        this.FONT_COLOR = fontColor;
         this.whereToRelocate = panelType;
     }
 
@@ -39,8 +41,13 @@ public class Button {
         g2d.setColor(selected ? DEFAULT_COLOR : SELECTED_COLOR);
         g2d.fillRect(x, y, width, height);
 
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(selected ? SELECTED_COLOR : DEFAULT_COLOR);
         g2d.drawRect(x, y, width, height);
+
+        int fontSize = (int) (height * 0.2);
+        Font font = new Font("Arial", Font.BOLD, fontSize);
+        g2d.setFont(font);
+        g2d.setColor(FONT_COLOR);
 
         FontMetrics fm = g2d.getFontMetrics();
 

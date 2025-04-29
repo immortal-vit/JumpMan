@@ -53,9 +53,9 @@ public class MenuPanel extends JPanel {
     private void initializeButtons() {
         buttons = new ArrayList<>();
 
-        buttons.add(startButton = new Button(0.15f,0.15f,0.225f,0.1f,"START", Color.DARK_GRAY, Color.LIGHT_GRAY, PanelType.GAME ));
-        buttons.add(settingsButton = new Button(0.15f,0.15f,0.425f,0.1f,"SETTINGS", Color.DARK_GRAY, Color.LIGHT_GRAY, PanelType.SETTING ));
-        buttons.add(quitButton = new Button(0.15f,0.15f,0.625f,0.1f,"EXIT", Color.DARK_GRAY, Color.LIGHT_GRAY, PanelType.EXIT ));
+        buttons.add(startButton = new Button(0.15f,0.15f,0.225f,0.1f,"START", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.GREEN, PanelType.GAME ));
+        buttons.add(settingsButton = new Button(0.15f,0.15f,0.425f,0.1f,"SETTINGS", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.BLUE, PanelType.SETTING ));
+        buttons.add(quitButton = new Button(0.15f,0.15f,0.625f,0.1f,"EXIT", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.RED, PanelType.EXIT ));
     }
 
     /**

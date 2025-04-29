@@ -70,7 +70,7 @@ public class SettingsPanel extends JPanel {
         buttons = new ArrayList<>();
         sliders = new ArrayList<>();
 
-        buttons.add(new Button(0.15f,0.15f,0.75f,0.425f,"BACK", Color.DARK_GRAY, Color.LIGHT_GRAY, PanelType.MENU));
+        buttons.add(new Button(0.15f,0.15f,0.75f,0.425f,"BACK", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.WHITE, PanelType.MENU));
 
         sliders.add(new VolumeSlider(0.05f,0.25f,0.2f,0.05f,Color.BLACK,Color.ORANGE));
 

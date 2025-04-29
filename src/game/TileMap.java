@@ -29,7 +29,7 @@ public class TileMap {
             tileTypes[1] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), true);
 
         } catch (Exception e) {
-            System.out.println("Chyba při načítání dlaždic");
+            System.out.println("error when loading blocks");
         }
     }
 
@@ -37,6 +37,7 @@ public class TileMap {
         this.tileSize = titleSize;
         loadMap(fileName);
     }
+
 
     private void loadMap(String fileName) {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -55,7 +56,7 @@ public class TileMap {
                 }
             }
         }catch (Exception e) {
-            System.out.println("nepodarilo se nacist mapu");
+            System.out.println("error when loading a map");
         }
     }
 

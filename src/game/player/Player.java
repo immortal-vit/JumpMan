@@ -3,8 +3,13 @@ package game.player;
 import frame.panels.GamePanel;
 import game.TileMap;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * class for player
@@ -16,17 +21,16 @@ public class Player {
      * there I have some crucial variables which manages things like jump, jump rate, power of jump etc.
      */
     private float x, y;
+    private float nextX, nextY;
     private final float width;
     private final float height;
 
     private float velocityX = 0;
     private float velocityY = 0;
 
-    private int floor = 0;
-
     private boolean onGround = true;
-
     private boolean chargingJump = false;
+
     private float chargePower;
     private final float maxCharge = 16f;
     private final float chargeRate = 0.5f;
@@ -36,9 +40,9 @@ public class Player {
 
     private final float gravity = 0.8f;
 
-    private BufferedImage sprite;
-
     private TileMap tileMap;
+    private Map<PlayerState,BufferedImage> sprites;
+
     private GamePanel gamePanel;
     private FloorChangeCallback floorChangeCallback;
 
@@ -48,17 +52,17 @@ public class Player {
      * @param startX starting x point
      * @param startY  starting y point
      * @param size size of the player this should some multiple of tile size for resizing properly
-     * @param sprite there wew can add image which we will be using
      * @param tileMap tile map for checking collisions
      */
-    public Player(float startX, float startY, float size, BufferedImage sprite, TileMap tileMap, GamePanel gamePanel) {
+    public Player(float startX, float startY, float size, TileMap tileMap, GamePanel gamePanel) {
         this.x = startX;
         this.y = startY;
         this.width = size;
         this.height = size;
-        this.sprite = sprite;
         this.tileMap = tileMap;
         this.gamePanel = gamePanel;
+        this.sprites = new HashMap<>();
+        loadPlayerSprites();
     }
 
     /**
@@ -96,18 +100,17 @@ public class Player {
 
     /**
      * this is the method for run in game panel
-     * this is managing all things for the player that habe to be checked
+     * this is managing all things for the player that have to be checked and done
      */
     public void update() {
        manageCharging();
        applyGravity();
-       applyVelocity();
 
-       checkCollisionBelow();
-       checkCollisionAbove();
+        applyFakeVelocity();
 
-       checkCollisionLeft();
-       checkCollisionRight();
+        applyVelocity();
+
+
 
        checkScreenBorders();
 
@@ -140,6 +143,17 @@ public class Player {
         x += velocityX;
         y += velocityY;
     }
+    private void applyFakeVelocity() {
+        nextX = x + velocityX;
+
+        checkCollisionLeft();
+        checkCollisionRight();
+
+        nextY = y + velocityY;
+
+        checkCollisionAbove();
+        checkCollisionBelow();
+    }
 
     /**
      * will create two hit box on
@@ -151,7 +165,7 @@ public class Player {
     private void checkCollisionBelow() {
         float leftFootX = x + width * 0.1f;
         float rightFootX = x + width * 0.9f;
-        float feetY = y + height;
+        float feetY = nextY + height;
 
         int rowBelow = (int)(feetY / tileMap.getTileSize());
         int colLeft = (int)(leftFootX / tileMap.getTileSize());
@@ -181,7 +195,7 @@ public class Player {
     private void checkCollisionAbove() {
         float leftHeadX = x + width * 0.1f;
         float rightHeadX = x + width * 0.9f;
-        float headY = y;
+        float headY = nextY;
 
         int rowAbove = (int)(headY / tileMap.getTileSize());
         int colLeft = (int)(leftHeadX / tileMap.getTileSize());
@@ -193,8 +207,15 @@ public class Player {
         if ((solidLeft || solidRight) && velocityY < 0) {
             y = (rowAbove + 1) * tileMap.getTileSize();
             velocityY = 0;
+            if (velocityX > 0){
+                velocityX = slowDownAfterCollision();
+            }
+            if (velocityX < 0){
+                velocityX = -slowDownAfterCollision();
+            }
+
         }
-        if (isOnMap()) { // hrubá detekce nárazu do horního okraje
+        if (isOnMap()) {
             moveUp();
         }
     }
@@ -205,9 +226,9 @@ public class Player {
      * also will check if player touches the bottom of the map if yes it will call moveDown
      */
     private void checkCollisionLeft() {
-        float leftX = x;
-        float topY = y + 5;
-        float bottomY = y + height - 1;
+        float leftX = nextX + width * 0.1f;
+        float topY = y + height * 0.15f;
+        float bottomY = y + height * 0.85f;
 
         int colLeft = (int)(leftX / tileMap.getTileSize());
         int rowTop = (int)(topY / tileMap.getTileSize());
@@ -218,7 +239,7 @@ public class Player {
 
         if (solidTop || solidBottom) {
             x = (colLeft + 1) * tileMap.getTileSize();
-            velocityX = -velocityX * 0.5f;
+            velocityX = slowDownAfterCollision();
         }
     }
 
@@ -227,9 +248,9 @@ public class Player {
      * will bounce the player to left side if it detects collision
      */
     private void checkCollisionRight() {
-        float rightX = x + width;
-        float topY = y + 5;
-        float bottomY = y + height - 1;
+        float rightX = nextX + width * 0.9f;
+        float topY = y + height * 0.15f;
+        float bottomY = y + height * 0.85f;
 
         int colRight = (int)(rightX / tileMap.getTileSize());
         int rowTop = (int)(topY / tileMap.getTileSize());
@@ -240,38 +261,60 @@ public class Player {
 
         if (solidTop || solidBottom) {
             x = colRight * tileMap.getTileSize() - width;
-            velocityX = -velocityX * 0.5f;
+            velocityX = -slowDownAfterCollision();
         }
     }
-
     /**
      * this wil check screen borders and if the player  touch the border it will bounce him of
      */
     private void checkScreenBorders() {
         if (x < 0) {
             x = 0;
-            velocityX = Math.abs(velocityX);
+
+            velocityX = slowDownAfterCollision();
         }
         if (x + width > tileMap.getCols() * tileMap.getTileSize()) {
             x = tileMap.getCols() * tileMap.getTileSize() - width;
-            velocityX = -Math.abs(velocityX);
+            velocityX = -slowDownAfterCollision();
         }
     }
+
 
     /**
      * will render the player
      * @param g graphics for rendering
      */
     public void render(Graphics2D g) {
+
+        BufferedImage sprite = sprites.get(PlayerState.IDLE);
+
+        if (chargingJump) {
+            sprite = sprites.get(PlayerState.CHARGING);
+        } else if (!onGround) {
+            if (velocityY < 0) {
+                sprite = sprites.get(PlayerState.JUMPING);
+            } else {
+                sprite = sprites.get(PlayerState.FALLING);
+            }
+        }
+
         g.setColor(Color.RED);
         g.drawRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
 
-        g.drawImage(sprite, Math.round(x) , Math.round(y),Math.round(width),Math.round(height), null);
+        switch(getDirection()){
+            case RIGHT -> g.drawImage(sprite, Math.round(x) , Math.round(y),Math.round(width),Math.round(height), null);
+            case LEFT -> g.drawImage(flipImageHorizontally(sprite), Math.round(x) , Math.round(y),Math.round(width),Math.round(height), null);
+
+        }
 
     }
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     /**
@@ -322,5 +365,32 @@ public class Player {
     public void resetChargingJump() {
         chargePower = 0;
         chargingJump = false;
+    }
+    public BufferedImage flipImageHorizontally(BufferedImage image) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage flippedImage = new BufferedImage(w, h, image.getType());
+
+        Graphics2D g = flippedImage.createGraphics();
+        g.drawImage(image, 0, 0,w,h,w,0,0,h, null);
+        return flippedImage;
+    }
+
+    private void addSprites(PlayerState playerState, BufferedImage sprite) {
+        sprites.put(playerState,sprite);
+    }
+    private void loadPlayerSprites(){
+        try {
+            addSprites(PlayerState.IDLE, ImageIO.read(new File("src/game/player/sprites/playerStanding.png")));
+            addSprites(PlayerState.CHARGING, ImageIO.read(new File("src/game/player/sprites/playerCharging.png")));
+            addSprites(PlayerState.JUMPING, ImageIO.read(new File("src/game/player/sprites/playerJumping.png")));
+            addSprites(PlayerState.FALLING, ImageIO.read(new File("src/game/player/sprites/playerFalling.png")));
+        } catch (IOException e) {
+            System.out.println("Error loading player sprites");
+        }
+
+    }
+    private float slowDownAfterCollision(){
+        return Math.abs(velocityX) * 0.5f;
     }
 }

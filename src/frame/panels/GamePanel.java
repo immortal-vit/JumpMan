@@ -20,7 +20,7 @@ import java.util.Map;
 public class GamePanel extends JPanel implements Runnable {
 
     private final int VIRTUAL_WIDTH = 800;
-    private final int VIRTUAL_HEIGHT = 600;
+    private final int VIRTUAL_HEIGHT = 608;
 
     private Player player;
     private BufferedImage playerSprite;
@@ -75,12 +75,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void initializePlayer() {
-        try {
-            playerSprite = ImageIO.read(new File("src/game/player/player.png"));
-        }catch (IOException e){
-            System.out.println("nepodarilo se nacist hrace");
-        }
-        player = new Player(100f,500, 1.5f * tileSize, playerSprite, floorMap.get(floor), this);
+        player = new Player(100f,500, 1.25f * tileSize, floorMap.get(floor), this);
         System.out.println("hrac se vytvoril");
         player.setFloorChangeCallback(direction -> {
             switch (direction) {
@@ -154,7 +149,7 @@ public class GamePanel extends JPanel implements Runnable {
                 gameThread = null;
             }
         } catch (InterruptedException e) {
-            System.out.println("neco se pokazilo pri pauzovani threadu");
+            System.out.println("something went wrong when pausing a thread");
         }
     }
 
