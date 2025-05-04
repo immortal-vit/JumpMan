@@ -2,6 +2,7 @@ package frame;
 
 import frame.panels.GamePanel;
 import frame.panels.MenuPanel;
+import frame.panels.PausePanel;
 import frame.panels.SettingsPanel;
 
 import javax.swing.*;
@@ -16,8 +17,9 @@ public class MainFrame {
     private SettingsPanel settingsPanel;
     private GamePanel gamePanel;
     private PanelType panelType;
+    private PausePanel pausePanel;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    private Point mousePosition;
+    private PanelType lastPanelType;
 
 
     public MainFrame() {
@@ -37,10 +39,12 @@ public class MainFrame {
         menuPanel = new MenuPanel(this);
         settingsPanel = new SettingsPanel(this);
         gamePanel = new GamePanel(this);
+        pausePanel = new PausePanel(this);
 
         panelContainer.add(menuPanel, PanelType.MENU.name());
         panelContainer.add(settingsPanel, PanelType.SETTING.name());
         panelContainer.add(gamePanel, PanelType.GAME.name());
+        panelContainer.add(pausePanel, PanelType.PAUSE.name());
 
         cardLayout.show(panelContainer, getPanelType().name());
 
@@ -56,12 +60,20 @@ public class MainFrame {
         frame.setVisible(true);
     }
     public void switchPanel(PanelType panelType){
+
+
         if (panelType == PanelType.EXIT){
             frame.dispose();
             return;
         }
         cardLayout.show(panelContainer, panelType.name());
         setPanelType(panelType);
+
+        if (panelType == PanelType.SETTING){
+            settingsPanel.updateRelocation();
+        }
+
+        lastPanelType = panelType;
 
         if (panelType == PanelType.GAME) {
             gamePanel.startGame();
@@ -79,5 +91,9 @@ public class MainFrame {
 
     public void setPanelType(PanelType panelType) {
         this.panelType = panelType;
+    }
+
+    public PanelType getLastPanelType() {
+        return lastPanelType;
     }
 }

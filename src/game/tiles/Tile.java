@@ -4,18 +4,18 @@ import java.awt.image.BufferedImage;
 
 public class Tile {
     private BufferedImage image;
-    private boolean isSolid;
+    private TileType type;
 
-    public Tile(BufferedImage image, boolean isSolid) {
+    public Tile(BufferedImage image, TileType type) {
         this.image = image;
-        this.isSolid = isSolid;
+        this.type = type;
     }
 
     public BufferedImage getImage() {
         return image;
     }
 
-    public boolean isSolid() {
-        return isSolid;
+    public TileType getType() {
+        return type;
     }
 }

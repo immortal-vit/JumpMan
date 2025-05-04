@@ -1,15 +1,10 @@
 package game.player;
 
 import frame.panels.GamePanel;
-import game.TileMap;
+import game.GameSettings;
+import game.tiles.TileMap;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * class for player
@@ -21,30 +16,34 @@ public class Player {
      * there I have some crucial variables which manages things like jump, jump rate, power of jump etc.
      */
     private float x, y;
-    private float nextX, nextY;
-    private final float width;
-    private final float height;
+    private final float WIDTH;
+    private final float HEIGHT;
+    private final float HITBOX_OFFSET_X = 12;
+    private final float HITBOX_OFFSET_Y = 5;
+    private Rectangle hitbox;
 
     private float velocityX = 0;
     private float velocityY = 0;
+    private final float MAX_VELOCITY_Y = 15f;
 
     private boolean onGround = true;
     private boolean chargingJump = false;
 
     private float chargePower;
-    private final float maxCharge = 16f;
-    private final float chargeRate = 0.5f;
-    private final float xStrength = 0.4f;
+    private final float MAX_CHARGE = 16f;
+    private final float CHARGE_RATE = 0.5f;
+    private final float X_STRENGTH = 0.4f;
 
     private Direction direction = Direction.RIGHT;
 
-    private final float gravity = 0.8f;
-
     private TileMap tileMap;
-    private Map<PlayerState,BufferedImage> sprites;
+    private PlayerPhysicsHandler physicsHandler;
+    private PlayerControls playerControls;
+    private PlayerRenderer renderer;
 
     private GamePanel gamePanel;
     private FloorChangeCallback floorChangeCallback;
+
 
 
     /**
@@ -57,12 +56,16 @@ public class Player {
     public Player(float startX, float startY, float size, TileMap tileMap, GamePanel gamePanel) {
         this.x = startX;
         this.y = startY;
-        this.width = size;
-        this.height = size;
+        this.WIDTH = size;
+        this.HEIGHT = size;
+        this.hitbox = new Rectangle((int) x, (int) y, (int) WIDTH, (int) HEIGHT);
         this.tileMap = tileMap;
+        this.physicsHandler = new PlayerPhysicsHandler(this, tileMap);
+        this.playerControls = new PlayerControls(this,5f);
+        this.renderer = new PlayerRenderer();
         this.gamePanel = gamePanel;
-        this.sprites = new HashMap<>();
-        loadPlayerSprites();
+
+
     }
 
     /**
@@ -84,15 +87,15 @@ public class Player {
             chargingJump = false;
             onGround = false;
 
-            float force = Math.min(chargePower, maxCharge);
+            float force = Math.min(chargePower, MAX_CHARGE);
 
             velocityY = -force * 1.2f;
             switch (direction){
                 case LEFT:
-                    velocityX = -force * xStrength;
+                    velocityX = -force * X_STRENGTH;
                     break;
                 case RIGHT:
-                    velocityX = force * xStrength;
+                    velocityX = force * X_STRENGTH;
                     break;
             }
         }
@@ -103,16 +106,23 @@ public class Player {
      * this is managing all things for the player that have to be checked and done
      */
     public void update() {
-       manageCharging();
-       applyGravity();
+        if (GameSettings.getInstance().isDevModeOn()){
+            setOnGround(false);
+            physicsHandler.applyVelocity();
+            physicsHandler.checkMovementForDevMode();
+            updateHitbox();
+        } else {
+            manageCharging();
+            physicsHandler.applyGravity();
 
-        applyFakeVelocity();
+            physicsHandler.handleCollisionAndMove();
+            physicsHandler.checkScreenBorders();
+            physicsHandler.applyVelocity();
+            updateHitbox();
+        }
 
-        applyVelocity();
 
 
-
-       checkScreenBorders();
 
     }
 
@@ -121,191 +131,17 @@ public class Player {
      */
     private void manageCharging() {
         if (chargingJump) {
-            chargePower += chargeRate;
-            if (chargePower > maxCharge) chargePower = maxCharge;
+            chargePower += CHARGE_RATE;
+            if (chargePower > MAX_CHARGE) chargePower = MAX_CHARGE;
         }
     }
-
-    /**
-     * method for falling
-     * if the player is not touching ground he will fall
-     */
-    private void applyGravity() {
-        if (!onGround) {
-            velocityY += gravity;
-        }
-    }
-
-    /**
-     * this will change the location based of the velocity
-     */
-    private void applyVelocity() {
-        x += velocityX;
-        y += velocityY;
-    }
-    private void applyFakeVelocity() {
-        nextX = x + velocityX;
-
-        checkCollisionLeft();
-        checkCollisionRight();
-
-        nextY = y + velocityY;
-
-        checkCollisionAbove();
-        checkCollisionBelow();
-    }
-
-    /**
-     * will create two hit box on
-     * each corner below
-     * the rowBelow, colLeft, colRight is int, and we will later check the tiles int the tile map thanks to it
-     * if we are standing on a ground we will set velocityX and velocityY to zero
-     */
-
-    private void checkCollisionBelow() {
-        float leftFootX = x + width * 0.1f;
-        float rightFootX = x + width * 0.9f;
-        float feetY = nextY + height;
-
-        int rowBelow = (int)(feetY / tileMap.getTileSize());
-        int colLeft = (int)(leftFootX / tileMap.getTileSize());
-        int colRight = (int)(rightFootX / tileMap.getTileSize());
-
-        boolean solidLeft = tileMap.isSolid(rowBelow, colLeft);
-        boolean solidRight = tileMap.isSolid(rowBelow, colRight);
-
-        if ((solidLeft || solidRight) && velocityY >= 0) {
-            y = rowBelow * tileMap.getTileSize() - height;
-            velocityY = 0;
-            velocityX = 0;
-            onGround = true;
-        } else {
-            onGround = false;
-        }
-        if (isBelowMap()){
-            moveDown();
-        }
-    }
-
-    /**
-     * this is the same as the last method but for above for the player
-     * will stop tha y for moving up
-     * also will check if player touches the top of the map if yes it will call moveUp
-     */
-    private void checkCollisionAbove() {
-        float leftHeadX = x + width * 0.1f;
-        float rightHeadX = x + width * 0.9f;
-        float headY = nextY;
-
-        int rowAbove = (int)(headY / tileMap.getTileSize());
-        int colLeft = (int)(leftHeadX / tileMap.getTileSize());
-        int colRight = (int)(rightHeadX / tileMap.getTileSize());
-
-        boolean solidLeft = tileMap.isSolid(rowAbove, colLeft);
-        boolean solidRight = tileMap.isSolid(rowAbove, colRight);
-
-        if ((solidLeft || solidRight) && velocityY < 0) {
-            y = (rowAbove + 1) * tileMap.getTileSize();
-            velocityY = 0;
-            if (velocityX > 0){
-                velocityX = slowDownAfterCollision();
-            }
-            if (velocityX < 0){
-                velocityX = -slowDownAfterCollision();
-            }
-
-        }
-        if (isOnMap()) {
-            moveUp();
-        }
-    }
-
-    /**
-     * same as last methods but for left side
-     * will bounce the player to right side if it detects collision
-     * also will check if player touches the bottom of the map if yes it will call moveDown
-     */
-    private void checkCollisionLeft() {
-        float leftX = nextX + width * 0.1f;
-        float topY = y + height * 0.15f;
-        float bottomY = y + height * 0.85f;
-
-        int colLeft = (int)(leftX / tileMap.getTileSize());
-        int rowTop = (int)(topY / tileMap.getTileSize());
-        int rowBottom = (int)(bottomY / tileMap.getTileSize());
-
-        boolean solidTop = tileMap.isSolid(rowTop, colLeft);
-        boolean solidBottom = tileMap.isSolid(rowBottom, colLeft);
-
-        if (solidTop || solidBottom) {
-            x = (colLeft + 1) * tileMap.getTileSize();
-            velocityX = slowDownAfterCollision();
-        }
-    }
-
-    /**
-     * same as last methods but for right side
-     * will bounce the player to left side if it detects collision
-     */
-    private void checkCollisionRight() {
-        float rightX = nextX + width * 0.9f;
-        float topY = y + height * 0.15f;
-        float bottomY = y + height * 0.85f;
-
-        int colRight = (int)(rightX / tileMap.getTileSize());
-        int rowTop = (int)(topY / tileMap.getTileSize());
-        int rowBottom = (int)(bottomY / tileMap.getTileSize());
-
-        boolean solidTop = tileMap.isSolid(rowTop, colRight);
-        boolean solidBottom = tileMap.isSolid(rowBottom, colRight);
-
-        if (solidTop || solidBottom) {
-            x = colRight * tileMap.getTileSize() - width;
-            velocityX = -slowDownAfterCollision();
-        }
-    }
-    /**
-     * this wil check screen borders and if the player  touch the border it will bounce him of
-     */
-    private void checkScreenBorders() {
-        if (x < 0) {
-            x = 0;
-
-            velocityX = slowDownAfterCollision();
-        }
-        if (x + width > tileMap.getCols() * tileMap.getTileSize()) {
-            x = tileMap.getCols() * tileMap.getTileSize() - width;
-            velocityX = -slowDownAfterCollision();
-        }
-    }
-
-
     /**
      * will render the player
      * @param g graphics for rendering
      */
     public void render(Graphics2D g) {
 
-        BufferedImage sprite = sprites.get(PlayerState.IDLE);
-
-        if (chargingJump) {
-            sprite = sprites.get(PlayerState.CHARGING);
-        } else if (!onGround) {
-            if (velocityY < 0) {
-                sprite = sprites.get(PlayerState.JUMPING);
-            } else {
-                sprite = sprites.get(PlayerState.FALLING);
-            }
-        }
-
-        g.setColor(Color.RED);
-        g.drawRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
-
-        switch(getDirection()){
-            case RIGHT -> g.drawImage(sprite, Math.round(x) , Math.round(y),Math.round(width),Math.round(height), null);
-            case LEFT -> g.drawImage(flipImageHorizontally(sprite), Math.round(x) , Math.round(y),Math.round(width),Math.round(height), null);
-
-        }
+        renderer.render(g,this);
 
     }
 
@@ -320,7 +156,7 @@ public class Player {
     /**
      * this will move floor up
      */
-    private void moveUp() {
+    public void moveUp() {
         if (floorChangeCallback != null) {
             floorChangeCallback.onFloorChange(FloorDirection.UP);
         }
@@ -329,7 +165,7 @@ public class Player {
     /**
      * this will move floor down
      */
-    private void moveDown() {
+    public void moveDown() {
         if (floorChangeCallback != null) {
             floorChangeCallback.onFloorChange(FloorDirection.DOWN);
         }
@@ -346,51 +182,94 @@ public class Player {
 
     public void setTileMap(TileMap tileMap) {
         this.tileMap = tileMap;
+        physicsHandler.setTileMap(tileMap);
     }
 
     public void setY(float y) {
         this.y = y;
     }
 
-    public float getHeight() {
-        return height;
+    public float getHEIGHT() {
+        return HEIGHT;
     }
-    private boolean isBelowMap() {
-        return y + height > tileMap.getRows() * tileMap.getTileSize();
-    }
-    private boolean isOnMap() {
-        return y < 1;
-    }
-
     public void resetChargingJump() {
         chargePower = 0;
         chargingJump = false;
     }
-    public BufferedImage flipImageHorizontally(BufferedImage image) {
-        int w = image.getWidth();
-        int h = image.getHeight();
-        BufferedImage flippedImage = new BufferedImage(w, h, image.getType());
 
-        Graphics2D g = flippedImage.createGraphics();
-        g.drawImage(image, 0, 0,w,h,w,0,0,h, null);
-        return flippedImage;
-    }
-
-    private void addSprites(PlayerState playerState, BufferedImage sprite) {
-        sprites.put(playerState,sprite);
-    }
-    private void loadPlayerSprites(){
-        try {
-            addSprites(PlayerState.IDLE, ImageIO.read(new File("src/game/player/sprites/playerStanding.png")));
-            addSprites(PlayerState.CHARGING, ImageIO.read(new File("src/game/player/sprites/playerCharging.png")));
-            addSprites(PlayerState.JUMPING, ImageIO.read(new File("src/game/player/sprites/playerJumping.png")));
-            addSprites(PlayerState.FALLING, ImageIO.read(new File("src/game/player/sprites/playerFalling.png")));
-        } catch (IOException e) {
-            System.out.println("Error loading player sprites");
-        }
-
-    }
     private float slowDownAfterCollision(){
         return Math.abs(velocityX) * 0.5f;
+    }
+
+    public boolean isOnGround() {
+        return onGround;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getWIDTH() {
+        return WIDTH;
+    }
+
+    public float getVelocityX() {
+        return velocityX;
+    }
+
+    public void setVelocityX(float velocityX) {
+        this.velocityX = velocityX;
+    }
+
+    public float getVelocityY() {
+        return velocityY;
+    }
+
+    public void setVelocityY(float velocityY) {
+        this.velocityY = velocityY;
+    }
+
+    public void setOnGround(boolean onGround) {
+        this.onGround = onGround;
+    }
+
+    public float getMAX_VELOCITY_Y() {
+        return MAX_VELOCITY_Y;
+    }
+    public void updateHitbox() {
+            hitbox.setBounds(
+                    (int) (x + HITBOX_OFFSET_X),
+                    (int) (y + HITBOX_OFFSET_Y),
+                    (int) (WIDTH - 2 * HITBOX_OFFSET_X),
+                    (int) (HEIGHT - HITBOX_OFFSET_Y)
+            );
+    }
+
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
+
+    public float getHITBOX_OFFSET_X() {
+        return HITBOX_OFFSET_X;
+    }
+
+    public float getHITBOX_OFFSET_Y() {
+        return HITBOX_OFFSET_Y;
+    }
+
+    public boolean isChargingJump() {
+        return chargingJump;
+    }
+
+    public PlayerControls getPlayerControls() {
+        return playerControls;
     }
 }

@@ -1,10 +1,7 @@
-package game;
-
-import game.tiles.Tile;
+package game.tiles;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -25,8 +22,9 @@ public class TileMap {
      */
     static {
         try {
-            tileTypes[0] = new Tile(ImageIO.read(new File("src/game/tiles/images/air.png")), false);
-            tileTypes[1] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), true);
+            tileTypes[0] = new Tile(ImageIO.read(new File("src/game/tiles/images/air.png")), TileType.AIR);
+            tileTypes[1] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), TileType.SOLID);
+            tileTypes[9] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), TileType.WIN);
 
         } catch (Exception e) {
             System.out.println("error when loading blocks");
@@ -69,8 +67,6 @@ public class TileMap {
                     float x = col * tileSize;
                     float y = row * tileSize;
 
-                    g.setColor(Color.GREEN);
-                    g.drawRect((int) (col * tileSize), (int) (row * tileSize), (int) tileSize, (int) tileSize);
                     g.drawImage(tile.getImage(), Math.round(x), Math.round(y), Math.round(tileSize), Math.round(tileSize), null);
                 }
 
@@ -81,7 +77,11 @@ public class TileMap {
     }
     public boolean isSolid(int row, int col) {
         if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
-        return tiles[row][col] != null && tiles[row][col].isSolid();
+        return tiles[row][col] != null && tiles[row][col].getType() == TileType.SOLID;
+    }
+    public boolean isWin(int row, int col) {
+        if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
+        return tiles[row][col] != null && tiles[row][col].getType() == TileType.WIN;
     }
 
     public float getTileSize() {

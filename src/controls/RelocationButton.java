@@ -5,17 +5,17 @@ import frame.PanelType;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class Button {
-    private float xPercent, yPercent, widthPercent, heightPercent;
+public class RelocationButton {
+    private final float xPercent, yPercent, widthPercent, heightPercent;
     private int x, y, width, height;
-    private String text;
-    private boolean selected = false;
+    private final String text;
+    private boolean hovered = false;
     private final Color SELECTED_COLOR;
     private final Color DEFAULT_COLOR;
     private final Color FONT_COLOR;
-    private final PanelType whereToRelocate;
+    private PanelType whereToRelocate;
 
-    public Button(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color defaultcolor, Color fontColor, PanelType panelType) {
+    public RelocationButton(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color defaultcolor, Color fontColor, PanelType panelType) {
         this.heightPercent = heightPercent;
         this.widthPercent = widthPercent;
         this.yPercent = yPercent;
@@ -38,10 +38,10 @@ public class Button {
         Graphics2D g2d = (Graphics2D) g;
 
         resize(panelWidth, panelHeight);
-        g2d.setColor(selected ? DEFAULT_COLOR : SELECTED_COLOR);
+        g2d.setColor(hovered ? DEFAULT_COLOR : SELECTED_COLOR);
         g2d.fillRect(x, y, width, height);
 
-        g2d.setColor(selected ? SELECTED_COLOR : DEFAULT_COLOR);
+        g2d.setColor(hovered ? SELECTED_COLOR : DEFAULT_COLOR);
         g2d.drawRect(x, y, width, height);
 
         int fontSize = (int) (height * 0.2);
@@ -57,16 +57,19 @@ public class Button {
     }
 
     public void updateSelected(MouseEvent e) {
-        selected = e.getX() >= x && e.getX() <= x + width && e.getY() >= y && e.getY() <= y + height;
+        hovered = e.getX() >= x && e.getX() <= x + width && e.getY() >= y && e.getY() <= y + height;
     }
 
     public boolean isSelected(MouseEvent e) {
-        return selected && e.getButton() == MouseEvent.BUTTON1;
+        return hovered && e.getButton() == MouseEvent.BUTTON1;
     }
 
     public PanelType getWhereToRelocate() {
-        selected = false;
+        hovered = false;
         return whereToRelocate;
     }
 
+    public void setWhereToRelocate(PanelType whereToRelocate) {
+        this.whereToRelocate = whereToRelocate;
+    }
 }

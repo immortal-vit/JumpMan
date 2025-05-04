@@ -2,18 +2,14 @@ package frame.panels;
 
 import frame.MainFrame;
 import frame.PanelType;
-import game.TileMap;
-import game.player.Direction;
+import game.GameSettings;
+import game.tiles.TileMap;
 import game.player.Player;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +19,6 @@ public class GamePanel extends JPanel implements Runnable {
     private final int VIRTUAL_HEIGHT = 608;
 
     private Player player;
-    private BufferedImage playerSprite;
 
     private float tileSize = 32f;
     private Map<Integer, TileMap> floorMap = new HashMap<>();
@@ -44,31 +39,24 @@ public class GamePanel extends JPanel implements Runnable {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_A:
-                        player.setDirection(Direction.LEFT);
-                        break;
-                    case KeyEvent.VK_D:
-                        player.setDirection(Direction.RIGHT);
-                        break;
-                    case KeyEvent.VK_ESCAPE:
-                        mainFrame.switchPanel(PanelType.MENU);
-                        player.resetChargingJump();
-                        stopThread();
-                        break;
+                if (GameSettings.getInstance().isDevModeOn()){
+                    player.getPlayerControls().devSettingsPressed(e);
+                } else {
+                    player.getPlayerControls().normalSettingsPressed(e);
+                }
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
+                    player.resetChargingJump();
+                    mainFrame.switchPanel(PanelType.PAUSE);
+                }
 
 
-                }
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    player.startCharging();
-                    System.out.println("charging");
-                }
             }
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    player.stopChargingAndJump();
-                    System.out.println("jump");
+                if (GameSettings.getInstance().isDevModeOn()){
+                    player.getPlayerControls().devSettingsReleased(e);
+                } else {
+                    player.getPlayerControls().normalSettingsReleased(e);
                 }
             }
         });
@@ -82,7 +70,7 @@ public class GamePanel extends JPanel implements Runnable {
                 case UP:
                     floor++;
                     player.setTileMap(floorMap.get(floor));
-                    player.setY(floorMap.get(floor).getTileSize() * floorMap.get(floor).getRows() - player.getHeight());
+                    player.setY(floorMap.get(floor).getTileSize() * floorMap.get(floor).getRows() - player.getHEIGHT());
                     break;
                 case DOWN:
                     floor--;
@@ -180,14 +168,6 @@ public class GamePanel extends JPanel implements Runnable {
     private void loadAllFloors() {
         for (int i = 0; i < MAX_FLOORS; i++) {
             floorMap.put(i, new TileMap("src/game/floorMap/floor" + i, tileSize));
-
-
         }
     }
-
-
-
-
-
-
 }

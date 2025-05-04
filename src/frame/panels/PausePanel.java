@@ -11,14 +11,19 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
-public class MenuPanel extends JPanel {
+public class PausePanel extends JPanel {
 
-    RelocationButton startButton;
-    RelocationButton settingsButton;
-    RelocationButton quitButton;
-    ArrayList<RelocationButton> buttons;
+    private ArrayList<RelocationButton> buttons;
+    private RelocationButton resumeButton;
+    private RelocationButton settingsButton;
+    private RelocationButton menuButton;
 
-    public MenuPanel(MainFrame frame) {
+    private final MainFrame frame;
+
+    public PausePanel(MainFrame frame) {
+        this.frame = frame;
+        setOpaque(false);
+
         initializeButtons();
 
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -30,45 +35,41 @@ public class MenuPanel extends JPanel {
                 }
             }
         });
-        addMouseListener(new MouseListener() {
 
+        addMouseListener(new MouseListener() {
             @Override public void mouseClicked(MouseEvent e) {}
             @Override public void mousePressed(MouseEvent e) {}
             @Override public void mouseReleased(MouseEvent e) {
                 for (RelocationButton b : buttons) {
-                    if (b.isSelected(e)){
+                    if (b.isSelected(e)) {
                         frame.switchPanel(b.getWhereToRelocate());
-                    } else {
-                        b.updateSelected(e);
-                        repaint();
                     }
+
                 }
             }
             @Override public void mouseEntered(MouseEvent e) {}
             @Override public void mouseExited(MouseEvent e) {}
         });
-
     }
 
     private void initializeButtons() {
         buttons = new ArrayList<>();
 
-        buttons.add(startButton = new RelocationButton(0.15f,0.15f,0.225f,0.1f,"START", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.GREEN, PanelType.GAME ));
-        buttons.add(settingsButton = new RelocationButton(0.15f,0.15f,0.425f,0.1f,"SETTINGS", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.BLUE, PanelType.SETTING ));
-        buttons.add(quitButton = new RelocationButton(0.15f,0.15f,0.625f,0.1f,"EXIT", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.RED, PanelType.EXIT ));
+        buttons.add(resumeButton = new RelocationButton(0.15f, 0.2f, 0.25f, 0.1f, "RESUME", Color.DARK_GRAY, Color.LIGHT_GRAY, Color.GREEN, PanelType.GAME));
+        buttons.add(settingsButton = new RelocationButton(0.15f, 0.2f, 0.25f, 0.4f, "SETTINGS", Color.DARK_GRAY, Color.LIGHT_GRAY, Color.ORANGE, PanelType.SETTING));
+        buttons.add(menuButton = new RelocationButton(0.15f, 0.2f, 0.25f, 0.7f, "MAIN MENU", Color.DARK_GRAY, Color.LIGHT_GRAY, Color.RED, PanelType.MENU));
     }
 
-    /**
-     * will paint components
-     * @param g the specified Graphics window
-     */
     @Override
     public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
         super.paintComponents(g);
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setColor(new Color(0, 0, 0, 180));
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
         for (RelocationButton b : buttons) {
-            b.render(g,getWidth(),getHeight());
+            b.render(g, getWidth(), getHeight());
         }
     }
-
 }
