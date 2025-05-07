@@ -4,6 +4,7 @@ import frame.PanelType;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 public class RelocationButton {
     private final float xPercent, yPercent, widthPercent, heightPercent;
@@ -11,18 +12,16 @@ public class RelocationButton {
     private final String text;
     private boolean hovered = false;
     private final Color SELECTED_COLOR;
-    private final Color DEFAULT_COLOR;
     private final Color FONT_COLOR;
     private PanelType whereToRelocate;
 
-    public RelocationButton(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color defaultcolor, Color fontColor, PanelType panelType) {
+    public RelocationButton(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color fontColor, PanelType panelType) {
         this.heightPercent = heightPercent;
         this.widthPercent = widthPercent;
         this.yPercent = yPercent;
         this.xPercent = xPercent;
         this.text = text;
         this.SELECTED_COLOR = selectedcolor;
-        this.DEFAULT_COLOR = defaultcolor;
         this.FONT_COLOR = fontColor;
         this.whereToRelocate = panelType;
     }
@@ -38,12 +37,24 @@ public class RelocationButton {
         Graphics2D g2d = (Graphics2D) g;
 
         resize(panelWidth, panelHeight);
-        g2d.setColor(hovered ? DEFAULT_COLOR : SELECTED_COLOR);
-        g2d.fillRect(x, y, width, height);
 
-        g2d.setColor(hovered ? SELECTED_COLOR : DEFAULT_COLOR);
-        g2d.drawRect(x, y, width, height);
+        float alpha = 0.4f;
 
+
+        if (hovered){
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            g2d.setColor(SELECTED_COLOR);
+            g2d.fillRect(x, y, width, height);
+
+            alpha = 0.75f;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            g2d.setColor(SELECTED_COLOR);
+            g2d.drawRect(x, y, width, height);
+        }
+
+
+        alpha = 1f;
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         int fontSize = (int) (height * 0.2);
         Font font = new Font("Arial", Font.BOLD, fontSize);
         g2d.setFont(font);
@@ -55,6 +66,7 @@ public class RelocationButton {
         int textY = y + (height + fm.getAscent() - fm.getDescent()) / 2;
         g2d.drawString(text, textX, textY);
     }
+
 
     public void updateSelected(MouseEvent e) {
         hovered = e.getX() >= x && e.getX() <= x + width && e.getY() >= y && e.getY() <= y + height;

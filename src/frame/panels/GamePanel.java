@@ -20,16 +20,18 @@ public class GamePanel extends JPanel implements Runnable {
 
     private Player player;
 
-    private float tileSize = 32f;
+    private final float tileSize = 32f;
     private Map<Integer, TileMap> floorMap = new HashMap<>();
-    private final int MAX_FLOORS = 3;
+    private int maxFloors = 3;
 
     private Thread gameThread;
     private boolean running = false;
     private int floor = 0;
+    private final MainFrame mainFrame;
 
 
     public GamePanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
 
         setFocusable(true);
 
@@ -63,7 +65,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void initializePlayer() {
-        player = new Player(100f,500, 1.25f * tileSize, floorMap.get(floor), this);
+        player = new Player(100f,VIRTUAL_HEIGHT - 2 * tileSize, 1.25f * tileSize, floorMap.get(floor), this);
         System.out.println("hrac se vytvoril");
         player.setFloorChangeCallback(direction -> {
             switch (direction) {
@@ -89,9 +91,9 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGame() {
-        if (!running) {
-            gameThread = new Thread(this);
+        if (gameThread == null || !gameThread.isAlive()) {
             running = true;
+            gameThread = new Thread(this);
             gameThread.start();
         }
     }
@@ -133,11 +135,12 @@ public class GamePanel extends JPanel implements Runnable {
         running = false;
         try {
             if (gameThread != null) {
-                gameThread.join();
+                Thread tmp = gameThread;
                 gameThread = null;
+                tmp.join();
             }
         } catch (InterruptedException e) {
-            System.out.println("something went wrong when pausing a thread");
+            System.out.println("something went wrong when stopping a thread");
         }
     }
 
@@ -166,8 +169,27 @@ public class GamePanel extends JPanel implements Runnable {
      * this will load all floors
      */
     private void loadAllFloors() {
-        for (int i = 0; i < MAX_FLOORS; i++) {
+        for (int i = 0; i < maxFloors; i++) {
             floorMap.put(i, new TileMap("src/game/floorMap/floor" + i, tileSize));
         }
+    }
+    public void triggerVictory(){
+        mainFrame.switchPanel(PanelType.VICTORY);
+    }
+    public void restartGame(){
+        floor = 0;
+        player.movePlayerToStartPosition();
+    }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public Map<Integer, TileMap> getFloorMap() {
+        return floorMap;
+    }
+
+    public int getMaxFloors() {
+        return maxFloors;
     }
 }

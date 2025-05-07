@@ -1,9 +1,6 @@
 package frame;
 
-import frame.panels.GamePanel;
-import frame.panels.MenuPanel;
-import frame.panels.PausePanel;
-import frame.panels.SettingsPanel;
+import frame.panels.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +15,7 @@ public class MainFrame {
     private GamePanel gamePanel;
     private PanelType panelType;
     private PausePanel pausePanel;
+    private VictoryPanel victoryPanel;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private PanelType lastPanelType;
 
@@ -40,11 +38,13 @@ public class MainFrame {
         settingsPanel = new SettingsPanel(this);
         gamePanel = new GamePanel(this);
         pausePanel = new PausePanel(this);
+        victoryPanel = new VictoryPanel(this);
 
         panelContainer.add(menuPanel, PanelType.MENU.name());
         panelContainer.add(settingsPanel, PanelType.SETTING.name());
         panelContainer.add(gamePanel, PanelType.GAME.name());
         panelContainer.add(pausePanel, PanelType.PAUSE.name());
+        panelContainer.add(victoryPanel, PanelType.VICTORY.name());
 
         cardLayout.show(panelContainer, getPanelType().name());
 
@@ -61,9 +61,10 @@ public class MainFrame {
     }
     public void switchPanel(PanelType panelType){
 
-
         if (panelType == PanelType.EXIT){
             frame.dispose();
+            System.exit(0);
+            System.out.println("exit");
             return;
         }
         cardLayout.show(panelContainer, panelType.name());

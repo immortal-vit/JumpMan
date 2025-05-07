@@ -12,9 +12,12 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SettingsPanel extends JPanel {
+
 
     private ArrayList<RelocationButton> buttons;
     private ArrayList<VolumeSlider> sliders;
@@ -22,7 +25,6 @@ public class SettingsPanel extends JPanel {
     private ArrayList<CheckBox> checkBoxes;
 
     private RelocationButton backButton;
-    private VolumeSlider volumeSlider;
     private CheckBox hitboxCheckBox;
     private CheckBox devModCheckBox;
 
@@ -30,7 +32,10 @@ public class SettingsPanel extends JPanel {
 
     public SettingsPanel(MainFrame frame) {
         this.frame = frame;
+        setBackground(Color.GRAY);
+        this.setOpaque(true);
         initializeComponents();
+
 
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -94,11 +99,11 @@ public class SettingsPanel extends JPanel {
         sliders = new ArrayList<>();
         checkBoxes = new ArrayList<>();
 
-        backButton = new RelocationButton(0.15f,0.15f,0.75f,0.425f,"BACK", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.WHITE, PanelType.MENU);
+        backButton = new RelocationButton(0.15f,0.15f,0.75f,0.425f,"BACK", Color.DARK_GRAY,Color.WHITE, PanelType.MENU);
 
         buttons.add(backButton);
 
-        volumeSlider = new VolumeSlider(0.05f,0.25f,0.2f,0.05f,Color.BLACK,Color.ORANGE);
+        VolumeSlider volumeSlider = new VolumeSlider(0.05f, 0.25f, 0.2f, 0.05f, Color.BLACK, Color.ORANGE);
 
         sliders.add(volumeSlider);
 
@@ -110,9 +115,12 @@ public class SettingsPanel extends JPanel {
 
     }
 
+
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+
         for (RelocationButton b : buttons) {
             b.render(g,getWidth(),getHeight());
         }

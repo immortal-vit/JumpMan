@@ -5,5 +5,6 @@ public enum PanelType {
     SETTING,
     GAME,
     EXIT,
-    PAUSE
+    PAUSE,
+    VICTORY
 }

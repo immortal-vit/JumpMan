@@ -9,7 +9,9 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MenuPanel extends JPanel {
 
@@ -17,8 +19,10 @@ public class MenuPanel extends JPanel {
     RelocationButton settingsButton;
     RelocationButton quitButton;
     ArrayList<RelocationButton> buttons;
+    private BufferedImage background;
 
     public MenuPanel(MainFrame frame) {
+        loadBackground();
         initializeButtons();
 
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -53,9 +57,17 @@ public class MenuPanel extends JPanel {
     private void initializeButtons() {
         buttons = new ArrayList<>();
 
-        buttons.add(startButton = new RelocationButton(0.15f,0.15f,0.225f,0.1f,"START", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.GREEN, PanelType.GAME ));
-        buttons.add(settingsButton = new RelocationButton(0.15f,0.15f,0.425f,0.1f,"SETTINGS", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.BLUE, PanelType.SETTING ));
-        buttons.add(quitButton = new RelocationButton(0.15f,0.15f,0.625f,0.1f,"EXIT", Color.DARK_GRAY, Color.LIGHT_GRAY,Color.RED, PanelType.EXIT ));
+        buttons.add(startButton = new RelocationButton(0.15f,0.15f,0.225f,0.1f,"START", Color.LIGHT_GRAY,Color.WHITE, PanelType.GAME ));
+        buttons.add(settingsButton = new RelocationButton(0.15f,0.15f,0.425f,0.1f,"SETTINGS", Color.LIGHT_GRAY,Color.WHITE, PanelType.SETTING ));
+        buttons.add(quitButton = new RelocationButton(0.15f,0.15f,0.625f,0.1f,"EXIT", Color.LIGHT_GRAY,Color.WHITE, PanelType.EXIT ));
+    }
+    private void loadBackground() {
+        try {
+            background = javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResource("/frame/panelBackgrounds/menuBackground.jpg")));
+        } catch (Exception e) {
+            System.out.println("background could not be loaded");
+        }
+
     }
 
     /**
@@ -63,8 +75,11 @@ public class MenuPanel extends JPanel {
      * @param g the specified Graphics window
      */
     @Override
-    public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
+        if (background != null) {
+            g2d.drawImage(background,0,0,getWidth(),getHeight(),this);
+        }
         super.paintComponents(g);
         for (RelocationButton b : buttons) {
             b.render(g,getWidth(),getHeight());

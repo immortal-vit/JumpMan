@@ -15,12 +15,14 @@ public class Player {
     /**
      * there I have some crucial variables which manages things like jump, jump rate, power of jump etc.
      */
+    private float startX, startY;
     private float x, y;
+    private boolean playerTouchVictoryPoint;
     private final float WIDTH;
     private final float HEIGHT;
     private final float HITBOX_OFFSET_X = 12;
     private final float HITBOX_OFFSET_Y = 5;
-    private Rectangle hitbox;
+    private final Rectangle hitbox;
 
     private float velocityX = 0;
     private float velocityY = 0;
@@ -37,11 +39,11 @@ public class Player {
     private Direction direction = Direction.RIGHT;
 
     private TileMap tileMap;
-    private PlayerPhysicsHandler physicsHandler;
-    private PlayerControls playerControls;
-    private PlayerRenderer renderer;
+    private final PlayerPhysicsHandler physicsHandler;
+    private final PlayerControls playerControls;
+    private final PlayerRenderer renderer;
 
-    private GamePanel gamePanel;
+    private final GamePanel gamePanel;
     private FloorChangeCallback floorChangeCallback;
 
 
@@ -54,6 +56,8 @@ public class Player {
      * @param tileMap tile map for checking collisions
      */
     public Player(float startX, float startY, float size, TileMap tileMap, GamePanel gamePanel) {
+        this.startX = startX;
+        this.startY = startY;
         this.x = startX;
         this.y = startY;
         this.WIDTH = size;
@@ -100,7 +104,6 @@ public class Player {
             }
         }
     }
-
     /**
      * this is the method for run in game panel
      * this is managing all things for the player that have to be checked and done
@@ -120,10 +123,6 @@ public class Player {
             physicsHandler.applyVelocity();
             updateHitbox();
         }
-
-
-
-
     }
 
     /**
@@ -157,8 +156,11 @@ public class Player {
      * this will move floor up
      */
     public void moveUp() {
-        if (floorChangeCallback != null) {
+        if (floorChangeCallback != null && getGamePanel().getFloor() < getGamePanel().getMaxFloors() - 1) {
             floorChangeCallback.onFloorChange(FloorDirection.UP);
+        } else {
+            velocityY = 0;
+            y = 1;
         }
     }
 
@@ -166,9 +168,9 @@ public class Player {
      * this will move floor down
      */
     public void moveDown() {
-        if (floorChangeCallback != null) {
+        if (floorChangeCallback != null && getGamePanel().getFloor() > 0) {
             floorChangeCallback.onFloorChange(FloorDirection.DOWN);
-        }
+        } else movePlayerToStartPosition();
     }
 
     /**
@@ -197,12 +199,19 @@ public class Player {
         chargingJump = false;
     }
 
-    private float slowDownAfterCollision(){
-        return Math.abs(velocityX) * 0.5f;
-    }
-
     public boolean isOnGround() {
         return onGround;
+    }
+    public void movePlayerToStartPosition(){
+        setX(getStartX());
+        setY(getStartY());
+        resetChargingJump();
+        setVelocityX(0);
+        setVelocityY(0);
+        setTileMap(getGamePanel().getFloorMap().get(getGamePanel().getFloor()));
+        updateHitbox();
+        setDirection(Direction.RIGHT);
+        setPlayerTouchVictoryPoint(false);
     }
 
     public float getX() {
@@ -271,5 +280,23 @@ public class Player {
 
     public PlayerControls getPlayerControls() {
         return playerControls;
+    }
+
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
+
+    public float getStartX() {
+        return startX;
+    }
+
+    public float getStartY() {
+        return startY;
+    }
+    public boolean isPlayerTouchVictoryPoint() {
+        return playerTouchVictoryPoint;
+    }
+    public void setPlayerTouchVictoryPoint(boolean playerTouchVictoryPoint) {
+        this.playerTouchVictoryPoint = playerTouchVictoryPoint;
     }
 }

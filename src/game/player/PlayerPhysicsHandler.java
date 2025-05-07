@@ -1,4 +1,5 @@
 package game.player;
+import frame.PanelType;
 import game.tiles.TileMap;
 
 import java.awt.*;
@@ -44,6 +45,11 @@ public class PlayerPhysicsHandler {
         checkCollisionBelow(nextY,leftX,rightX, hitbox);
         checkCollisionAbove(nextY,leftX,rightX);
 
+        if (player.isPlayerTouchVictoryPoint()){
+            player.getGamePanel().restartGame();
+            player.getGamePanel().triggerVictory();
+
+        }
 
     }
 
@@ -151,7 +157,7 @@ public class PlayerPhysicsHandler {
         boolean winPoint2 = isWin(NextYOrX, position2);
 
         if (winPoint1 || winPoint2) {
-            System.out.println("you won");
+            player.setPlayerTouchVictoryPoint(true);
         }
 
     }

@@ -11,12 +11,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
-public class PausePanel extends JPanel {
+public class VictoryPanel extends JPanel {
 
     private ArrayList<RelocationButton> buttons;
     private final MainFrame frame;
 
-    public PausePanel(MainFrame frame) {
+    public VictoryPanel(MainFrame frame) {
         this.frame = frame;
         this.setBackground(Color.DARK_GRAY);
         this.setOpaque(true);
@@ -52,13 +52,9 @@ public class PausePanel extends JPanel {
     private void initializeButtons() {
         buttons = new ArrayList<>();
 
-        RelocationButton resumeButton = new RelocationButton(0.15f, 0.2f, 0.25f, 0.1f, "RESUME", Color.LIGHT_GRAY, Color.GREEN, PanelType.GAME);
-        RelocationButton settingsButton = new RelocationButton(0.15f, 0.2f, 0.25f, 0.4f, "SETTINGS", Color.LIGHT_GRAY, Color.ORANGE, PanelType.SETTING);
-        RelocationButton menuButton = new RelocationButton(0.15f, 0.2f, 0.25f, 0.7f, "MAIN MENU", Color.LIGHT_GRAY, Color.RED, PanelType.MENU);
+        RelocationButton backToMenu = new RelocationButton(0.15f, 0.2f, 0.65f, 0.4f, "BACK TO MENU", Color.LIGHT_GRAY, Color.WHITE, PanelType.MENU);
 
-        buttons.add(resumeButton);
-        buttons.add(settingsButton);
-        buttons.add(menuButton);
+        buttons.add(backToMenu);
     }
 
     @Override
@@ -80,14 +76,14 @@ public class PausePanel extends JPanel {
         g.setFont(g.getFont().deriveFont(Font.BOLD, fontSize));
 
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth("PAUSED");
+        int textWidth = fm.stringWidth("VICTORY");
         int textHeight = fm.getAscent();
 
         int x = (getWidth() - textWidth) / 2;
-        int y = (int) (getHeight() * 0.8f) + textHeight / 2;
+        int y = (int) (getHeight() * 0.2f) + textHeight / 2;
 
-        g.setColor(Color.WHITE);
-        g.drawString("PAUSED", x, y);
+        g.setColor(Color.ORANGE);
+        g.drawString("VICTORY", x, y);
 
     }
 }
