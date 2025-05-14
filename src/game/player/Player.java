@@ -15,7 +15,8 @@ public class Player {
     /**
      * there I have some crucial variables which manages things like jump, jump rate, power of jump etc.
      */
-    private float startX, startY;
+    private final float START_X, START_Y;
+
     private float x, y;
     private boolean playerTouchVictoryPoint;
     private final float WIDTH;
@@ -33,8 +34,6 @@ public class Player {
 
     private float chargePower;
     private final float MAX_CHARGE = 16f;
-    private final float CHARGE_RATE = 0.5f;
-    private final float X_STRENGTH = 0.4f;
 
     private Direction direction = Direction.RIGHT;
 
@@ -45,6 +44,7 @@ public class Player {
 
     private final GamePanel gamePanel;
     private FloorChangeCallback floorChangeCallback;
+    private int totalJumps;
 
 
 
@@ -56,8 +56,8 @@ public class Player {
      * @param tileMap tile map for checking collisions
      */
     public Player(float startX, float startY, float size, TileMap tileMap, GamePanel gamePanel) {
-        this.startX = startX;
-        this.startY = startY;
+        this.START_X = startX;
+        this.START_Y = startY;
         this.x = startX;
         this.y = startY;
         this.WIDTH = size;
@@ -81,6 +81,16 @@ public class Player {
             chargePower = 0;
         }
     }
+    /**
+     * this checks based of the boolean if the player is charging it will slowly add power for the jump
+     */
+    private void manageCharging() {
+        if (chargingJump) {
+            float CHARGE_RATE = 0.5f;
+            chargePower += CHARGE_RATE;
+            if (chargePower > MAX_CHARGE) chargePower = MAX_CHARGE;
+        }
+    }
 
     /**
      * stop charging and will launch our player into the air
@@ -90,19 +100,25 @@ public class Player {
         if (chargingJump) {
             chargingJump = false;
             onGround = false;
+            add1ToTotalJumps();
 
             float force = Math.min(chargePower, MAX_CHARGE);
 
             velocityY = -force * 1.2f;
+            float x_STRENGTH = 0.4f;
             switch (direction){
                 case LEFT:
-                    velocityX = -force * X_STRENGTH;
+                    velocityX = -force * x_STRENGTH;
                     break;
                 case RIGHT:
-                    velocityX = force * X_STRENGTH;
+                    velocityX = force * x_STRENGTH;
                     break;
             }
         }
+    }
+    public void resetChargingJump() {
+        chargePower = 0;
+        chargingJump = false;
     }
     /**
      * this is the method for run in game panel
@@ -124,16 +140,6 @@ public class Player {
             updateHitbox();
         }
     }
-
-    /**
-     * this checks based of the boolean if the player is charging it will slowly add power for the jump
-     */
-    private void manageCharging() {
-        if (chargingJump) {
-            chargePower += CHARGE_RATE;
-            if (chargePower > MAX_CHARGE) chargePower = MAX_CHARGE;
-        }
-    }
     /**
      * will render the player
      * @param g graphics for rendering
@@ -143,15 +149,17 @@ public class Player {
         renderer.render(g,this);
 
     }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
+    public void movePlayerToStartPosition(){
+        setX(getSTART_X());
+        setY(getSTART_Y());
+        resetChargingJump();
+        setVelocityX(0);
+        setVelocityY(0);
+        setTileMap(getGamePanel().getFloorMap().get(getGamePanel().getFloor()));
+        updateHitbox();
+        setDirection(Direction.RIGHT);
+        setPlayerTouchVictoryPoint(false);
     }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
     /**
      * this will move floor up
      */
@@ -163,7 +171,6 @@ public class Player {
             y = 1;
         }
     }
-
     /**
      * this will move floor down
      */
@@ -172,7 +179,17 @@ public class Player {
             floorChangeCallback.onFloorChange(FloorDirection.DOWN);
         } else movePlayerToStartPosition();
     }
-
+    public void updateHitbox() {
+        hitbox.setBounds(
+                (int) (x + HITBOX_OFFSET_X),
+                (int) (y + HITBOX_OFFSET_Y),
+                (int) (WIDTH - 2 * HITBOX_OFFSET_X),
+                (int) (HEIGHT - HITBOX_OFFSET_Y)
+        );
+    }
+    public void resetStats(){
+        totalJumps = 0;
+    }
     /**
      * because of this the runnable will know that he has something to do
      * @param floorChangeCallback this will call callback for runnable in game panel
@@ -180,6 +197,14 @@ public class Player {
      */
     public void setFloorChangeCallback(FloorChangeCallback floorChangeCallback) {
         this.floorChangeCallback = floorChangeCallback;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public void setTileMap(TileMap tileMap) {
@@ -194,24 +219,9 @@ public class Player {
     public float getHEIGHT() {
         return HEIGHT;
     }
-    public void resetChargingJump() {
-        chargePower = 0;
-        chargingJump = false;
-    }
 
     public boolean isOnGround() {
         return onGround;
-    }
-    public void movePlayerToStartPosition(){
-        setX(getStartX());
-        setY(getStartY());
-        resetChargingJump();
-        setVelocityX(0);
-        setVelocityY(0);
-        setTileMap(getGamePanel().getFloorMap().get(getGamePanel().getFloor()));
-        updateHitbox();
-        setDirection(Direction.RIGHT);
-        setPlayerTouchVictoryPoint(false);
     }
 
     public float getX() {
@@ -253,14 +263,6 @@ public class Player {
     public float getMAX_VELOCITY_Y() {
         return MAX_VELOCITY_Y;
     }
-    public void updateHitbox() {
-            hitbox.setBounds(
-                    (int) (x + HITBOX_OFFSET_X),
-                    (int) (y + HITBOX_OFFSET_Y),
-                    (int) (WIDTH - 2 * HITBOX_OFFSET_X),
-                    (int) (HEIGHT - HITBOX_OFFSET_Y)
-            );
-    }
 
     public Rectangle getHitbox() {
         return hitbox;
@@ -286,17 +288,25 @@ public class Player {
         return gamePanel;
     }
 
-    public float getStartX() {
-        return startX;
+    public float getSTART_X() {
+        return START_X;
     }
 
-    public float getStartY() {
-        return startY;
+    public float getSTART_Y() {
+        return START_Y;
     }
     public boolean isPlayerTouchVictoryPoint() {
         return playerTouchVictoryPoint;
     }
     public void setPlayerTouchVictoryPoint(boolean playerTouchVictoryPoint) {
         this.playerTouchVictoryPoint = playerTouchVictoryPoint;
+    }
+
+    public int getTotalJumps() {
+        return totalJumps;
+    }
+
+    public void add1ToTotalJumps() {
+        this.totalJumps++;
     }
 }

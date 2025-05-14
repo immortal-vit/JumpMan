@@ -18,6 +18,7 @@ public class MainFrame {
     private VictoryPanel victoryPanel;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private PanelType lastPanelType;
+    Cursor invisibleCursor;
 
 
     public MainFrame() {
@@ -28,6 +29,7 @@ public class MainFrame {
         panelType = PanelType.MENU;
         createPanels();
         createFrame();
+        initializeCursor();
 
     }
     private void createPanels(){
@@ -64,11 +66,18 @@ public class MainFrame {
         if (panelType == PanelType.EXIT){
             frame.dispose();
             System.exit(0);
-            System.out.println("exit");
             return;
         }
+
         cardLayout.show(panelContainer, panelType.name());
         setPanelType(panelType);
+        if (panelType == PanelType.GAME) {
+            gamePanel.startGame();
+            gamePanel.requestFocusInWindow();
+            hideCursor();
+        } else {
+            showCursor();
+        }
 
         if (panelType == PanelType.SETTING){
             settingsPanel.updateRelocation();
@@ -76,14 +85,20 @@ public class MainFrame {
 
         lastPanelType = panelType;
 
-        if (panelType == PanelType.GAME) {
-            gamePanel.startGame();
-            gamePanel.requestFocusInWindow();
-        } else {
-            gamePanel.stopThread();
-        }
-
         frame.repaint();
+    }
+    private void initializeCursor(){
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Image image = toolkit.createImage("");
+        invisibleCursor = toolkit.createCustomCursor(image, new Point(0, 0), "invisibleCursor");
+    }
+
+    public void hideCursor() {
+        frame.setCursor(invisibleCursor);
+    }
+
+    public void showCursor() {
+        frame.setCursor(Cursor.getDefaultCursor());
     }
 
     public PanelType getPanelType() {
@@ -96,5 +111,9 @@ public class MainFrame {
 
     public PanelType getLastPanelType() {
         return lastPanelType;
+    }
+
+    public GamePanel getGamePanel() {
+        return gamePanel;
     }
 }

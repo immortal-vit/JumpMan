@@ -11,7 +11,7 @@ public class TileMap {
     private float tileSize;
     private int rows, cols;
 
-    private static final int TILE_COUNT = 20;
+    private static final int TILE_COUNT = 10;
     private static Tile[] tileTypes = new Tile[TILE_COUNT];
 
     /**
@@ -24,7 +24,11 @@ public class TileMap {
         try {
             tileTypes[0] = new Tile(ImageIO.read(new File("src/game/tiles/images/air.png")), TileType.AIR);
             tileTypes[1] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), TileType.SOLID);
-            tileTypes[9] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), TileType.WIN);
+            tileTypes[2] = new Tile(ImageIO.read(new File("src/game/tiles/images/castleBlock.png")), TileType.SOLID);
+            tileTypes[3] = new Tile(ImageIO.read(new File("src/game/tiles/images/castleBackground.png")), TileType.AIR);
+            tileTypes[4] = new Tile(ImageIO.read(new File("src/game/tiles/images/wallWithTorch.png")), TileType.AIR);
+            tileTypes[5] = new Tile(ImageIO.read(new File("src/game/tiles/images/window.png")), TileType.AIR);
+            tileTypes[9] = new Tile(ImageIO.read(new File("src/game/tiles/images/star.png")), TileType.WIN);
 
         } catch (Exception e) {
             System.out.println("error when loading blocks");

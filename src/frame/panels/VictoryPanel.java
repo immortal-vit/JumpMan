@@ -15,6 +15,9 @@ public class VictoryPanel extends JPanel {
 
     private ArrayList<RelocationButton> buttons;
     private final MainFrame frame;
+    private int totalJumpsTaken;
+    private String winText = "VICTORY";
+    private String totalJumpText;
 
     public VictoryPanel(MainFrame frame) {
         this.frame = frame;
@@ -40,6 +43,7 @@ public class VictoryPanel extends JPanel {
                 for (RelocationButton b : buttons) {
                     if (b.isSelected(e)) {
                         frame.switchPanel(b.getWhereToRelocate());
+                        frame.getGamePanel().restartGame();
                     }
 
                 }
@@ -62,9 +66,7 @@ public class VictoryPanel extends JPanel {
 
         super.paintComponent(g);
 
-
         paintText(g);
-
 
         for (RelocationButton b : buttons) {
             b.render(g, getWidth(), getHeight());
@@ -72,18 +74,33 @@ public class VictoryPanel extends JPanel {
     }
 
     private void paintText(Graphics g) {
+        updateJumpStatistic();
+
         float fontSize = getHeight() * 0.1f;
         g.setFont(g.getFont().deriveFont(Font.BOLD, fontSize));
 
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth("VICTORY");
+        int textWidth = fm.stringWidth(winText);
         int textHeight = fm.getAscent();
 
         int x = (getWidth() - textWidth) / 2;
-        int y = (int) (getHeight() * 0.2f) + textHeight / 2;
+        int y1 = (int) (getHeight() * 0.2f) + textHeight / 2;
+        int y2 = (int) (getHeight() * 0.4f) + textHeight / 2;
 
         g.setColor(Color.ORANGE);
-        g.drawString("VICTORY", x, y);
+        g.drawString(winText, x, y1);
 
+        fontSize = getHeight() * 0.05f;
+        g.setFont(g.getFont().deriveFont(Font.BOLD, fontSize));
+        fm = g.getFontMetrics();
+        textWidth = fm.stringWidth(totalJumpText);
+        x = (getWidth() - textWidth) / 2;
+
+        g.drawString(totalJumpText, x, y2);
+
+    }
+    private void updateJumpStatistic(){
+        totalJumpsTaken = frame.getGamePanel().getPlayer().getTotalJumps();
+        totalJumpText = "total jumps = " + totalJumpsTaken;
     }
 }

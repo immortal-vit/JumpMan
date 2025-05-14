@@ -2,7 +2,7 @@ package frame.panels;
 
 import controls.RelocationButton;
 import controls.CheckBox;
-import controls.VolumeSlider;
+import controls.Slider;
 import frame.MainFrame;
 import frame.PanelType;
 import game.GameSettings;
@@ -12,19 +12,19 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class SettingsPanel extends JPanel {
 
 
     private ArrayList<RelocationButton> buttons;
-    private ArrayList<VolumeSlider> sliders;
+    private ArrayList<Slider> sliders;
 
     private ArrayList<CheckBox> checkBoxes;
 
     private RelocationButton backButton;
+    private Slider volumeSlider;
+    private Slider soundEffectSlider;
     private CheckBox hitboxCheckBox;
     private CheckBox devModCheckBox;
 
@@ -50,7 +50,7 @@ public class SettingsPanel extends JPanel {
             }
             @Override
             public void mouseDragged(MouseEvent e) {
-                for (VolumeSlider slider : sliders) {
+                for (Slider slider : sliders) {
                     slider.mouseDragged(e);
 
                 }
@@ -62,7 +62,7 @@ public class SettingsPanel extends JPanel {
 
             @Override public void mouseClicked(MouseEvent e) {}
             @Override public void mousePressed(MouseEvent e) {
-                for (VolumeSlider slider : sliders) {
+                for (Slider slider : sliders) {
                     slider.mousePressed(e);
                 }
             }
@@ -82,7 +82,7 @@ public class SettingsPanel extends JPanel {
                     }
 
                 }
-                for (VolumeSlider slider : sliders) {
+                for (Slider slider : sliders) {
                     slider.mouseReleased(e);
                 }
                 updateGameSettings();
@@ -103,12 +103,14 @@ public class SettingsPanel extends JPanel {
 
         buttons.add(backButton);
 
-        VolumeSlider volumeSlider = new VolumeSlider(0.05f, 0.25f, 0.2f, 0.05f, Color.BLACK, Color.ORANGE);
+        volumeSlider = new Slider(0.05f, 0.25f, 0.2f, 0.05f, Color.BLACK, Color.RED, "MUSIC");
+        soundEffectSlider = new Slider(0.05f, 0.45f, 0.2f, 0.05f, Color.BLACK, Color.RED, "SOUND EFFECTS");
 
         sliders.add(volumeSlider);
+        sliders.add(soundEffectSlider);
 
-        hitboxCheckBox = new CheckBox(0.7f,0.2f,0.1f,Color.DARK_GRAY,Color.RED,Color.GREEN, "show hitbox", Color.DARK_GRAY);
-        devModCheckBox = new CheckBox(0.7f, 0.4f,0.1f,Color.DARK_GRAY,Color.RED,Color.GREEN, "enable dev mode", Color.DARK_GRAY);
+        hitboxCheckBox = new CheckBox(0.7f,0.2f,0.1f,Color.DARK_GRAY,Color.RED,Color.GREEN, "SHOW HITBOX", Color.DARK_GRAY);
+        devModCheckBox = new CheckBox(0.7f, 0.4f,0.1f,Color.DARK_GRAY,Color.RED,Color.GREEN, "FLY MODE", Color.DARK_GRAY);
 
         checkBoxes.add(hitboxCheckBox);
         checkBoxes.add(devModCheckBox);
@@ -124,7 +126,7 @@ public class SettingsPanel extends JPanel {
         for (RelocationButton b : buttons) {
             b.render(g,getWidth(),getHeight());
         }
-        for (VolumeSlider slider : sliders) {
+        for (Slider slider : sliders) {
             slider.render(g,getWidth(),getHeight());
         }
         for (CheckBox c : checkBoxes) {

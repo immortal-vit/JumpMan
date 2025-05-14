@@ -21,8 +21,8 @@ public class GamePanel extends JPanel implements Runnable {
     private Player player;
 
     private final float tileSize = 32f;
-    private Map<Integer, TileMap> floorMap = new HashMap<>();
-    private int maxFloors = 3;
+    private HashMap<Integer, TileMap> floorMap = new HashMap<>();
+    private final int MAX_FLOORS = 5;
 
     private Thread gameThread;
     private boolean running = false;
@@ -169,7 +169,7 @@ public class GamePanel extends JPanel implements Runnable {
      * this will load all floors
      */
     private void loadAllFloors() {
-        for (int i = 0; i < maxFloors; i++) {
+        for (int i = 0; i < MAX_FLOORS; i++) {
             floorMap.put(i, new TileMap("src/game/floorMap/floor" + i, tileSize));
         }
     }
@@ -179,6 +179,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void restartGame(){
         floor = 0;
         player.movePlayerToStartPosition();
+        player.resetStats();
     }
 
     public int getFloor() {
@@ -190,6 +191,10 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public int getMaxFloors() {
-        return maxFloors;
+        return MAX_FLOORS;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

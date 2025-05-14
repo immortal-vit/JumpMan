@@ -46,9 +46,7 @@ public class PlayerPhysicsHandler {
         checkCollisionAbove(nextY,leftX,rightX);
 
         if (player.isPlayerTouchVictoryPoint()){
-            player.getGamePanel().restartGame();
             player.getGamePanel().triggerVictory();
-
         }
 
     }

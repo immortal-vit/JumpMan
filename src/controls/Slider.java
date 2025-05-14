@@ -8,15 +8,16 @@ import java.awt.*;
  * custom slide bar for sound
  * it scales with panel, and it is based of the percents
  */
-public class VolumeSlider {
+public class Slider {
 
     private float xPercent, yPercent, widthPercent, heightPercent;
     private int x, y, width, height;
 
-    private int volume = 50;
+    private int value = 50;
     private boolean dragging = false;
     private Color primaryColor;
     private Color secondaryColor;
+    private String label;
 
     /**
      *  this will set position width and colors
@@ -27,13 +28,14 @@ public class VolumeSlider {
      * @param primaryColor primary color for slider and text
      * @param secondaryColor secondary color for knob
      */
-    public VolumeSlider(float xPercent, float yPercent, float widthPercent, float heightPercent, Color primaryColor, Color secondaryColor) {
+    public Slider(float xPercent, float yPercent, float widthPercent, float heightPercent, Color primaryColor, Color secondaryColor, String label) {
         this.xPercent = xPercent;
         this.yPercent = yPercent;
         this.widthPercent = widthPercent;
         this.heightPercent = heightPercent;
         this.primaryColor = primaryColor;
         this.secondaryColor = secondaryColor;
+        this.label = label;
     }
 
     /**
@@ -65,7 +67,7 @@ public class VolumeSlider {
 
         int knobWidth = (int)(height * 0.4);
         int knobHeight = height;
-        int knobX = x + (int) ((width - knobWidth) * (volume / 100f));
+        int knobX = x + (int) ((width - knobWidth) * (value / 100f));
 
         g2d.setColor(primaryColor);
         g2d.fillRoundRect(x, barY, width, barHeight, 10, 10);
@@ -77,7 +79,7 @@ public class VolumeSlider {
         g2d.drawRoundRect(knobX, y, knobWidth, knobHeight, 10, 10);
 
         g2d.setFont(new Font("Arial", Font.BOLD, 16));
-        String text = "Volume: " + volume + "%";
+        String text = label + ": " + value + "%";
         FontMetrics fm = g2d.getFontMetrics();
         int textX = x + (width - fm.stringWidth(text)) / 2;
         int textY = y - 10;
@@ -113,7 +115,7 @@ public class VolumeSlider {
             int knobWidth = getKnobRect().width;
             int newX = Math.max(x, Math.min(e.getX() - knobWidth / 2, x + width - knobWidth));
             float percent = (float)(newX - x) / (width - knobWidth);
-            volume = Math.round(percent * 100);
+            value = Math.round(percent * 100);
         }
     }
 
@@ -123,7 +125,7 @@ public class VolumeSlider {
      */
     private Rectangle getKnobRect() {
         int knobWidth = (int)(height * 0.6);
-        int knobX = x + (int) ((width - knobWidth) * (volume / 100f));
+        int knobX = x + (int) ((width - knobWidth) * (value / 100f));
         return new Rectangle(knobX, y, knobWidth, height);
     }
 
@@ -131,15 +133,15 @@ public class VolumeSlider {
      *
      * @return volume for soundtrack
      */
-    public int getVolume() {
-        return volume;
+    public int getValue() {
+        return value;
     }
 
     /**
      * volume is between 0 - 100
      * @param v new v which will be selected for vol
      */
-    public void setVolume(int v) {
-        volume = Math.max(0, Math.min(v, 100));
+    public void setValue(int v) {
+        value = Math.max(0, Math.min(v, 100));
     }
 }
