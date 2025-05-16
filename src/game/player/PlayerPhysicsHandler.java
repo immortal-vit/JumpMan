@@ -30,7 +30,7 @@ public class PlayerPhysicsHandler {
 
         int nextX = (int) (player.getHitbox().x + player.getVelocityX());
         float topY = player.getHitbox().y;
-        float bottomY = player.getHitbox().y + player.getHitbox().height;
+        float bottomY = player.getHitbox().y + player.getHitbox().height - 1;
 
         checkCollisionLeft(nextX, topY, bottomY,hitbox);
         checkCollisionRight(nextX, topY, bottomY,hitbox);

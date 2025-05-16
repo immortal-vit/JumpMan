@@ -1,6 +1,8 @@
 package frame;
 
 import frame.panels.*;
+import game.GameSettings;
+import game.sounds.SoundPlayer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +20,8 @@ public class MainFrame {
     private VictoryPanel victoryPanel;
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private PanelType lastPanelType;
-    Cursor invisibleCursor;
+    private Cursor invisibleCursor;
+    private SoundPlayer soundPlayer;
 
 
     public MainFrame() {
@@ -26,10 +29,13 @@ public class MainFrame {
     }
 
     private void initialize(){
+        GameSettings.getInstance();
         panelType = PanelType.MENU;
+        initializeMusic();
         createPanels();
         createFrame();
         initializeCursor();
+
 
     }
     private void createPanels(){
@@ -71,21 +77,26 @@ public class MainFrame {
 
         cardLayout.show(panelContainer, panelType.name());
         setPanelType(panelType);
+
+        managePanelFunctions(panelType);
+
+        lastPanelType = panelType;
+
+        frame.repaint();
+    }
+    private void managePanelFunctions(PanelType panelType){
         if (panelType == PanelType.GAME) {
             gamePanel.startGame();
             gamePanel.requestFocusInWindow();
             hideCursor();
         } else {
             showCursor();
+            gamePanel.stopThread();
         }
 
         if (panelType == PanelType.SETTING){
             settingsPanel.updateRelocation();
         }
-
-        lastPanelType = panelType;
-
-        frame.repaint();
     }
     private void initializeCursor(){
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -99,6 +110,16 @@ public class MainFrame {
 
     public void showCursor() {
         frame.setCursor(Cursor.getDefaultCursor());
+    }
+    private void initializeMusic(){
+        soundPlayer = new SoundPlayer();
+        soundPlayer.playMusic("src/game/sounds/theme.wav");
+        System.out.println("playSound");
+    }
+    public void setMusicVolume(int newVolumePercent) {
+        GameSettings.getInstance().setMusicVolume(newVolumePercent);
+        GameSettings.getInstance().save();
+        soundPlayer.updateMusicVolume();
     }
 
     public PanelType getPanelType() {
@@ -115,5 +136,9 @@ public class MainFrame {
 
     public GamePanel getGamePanel() {
         return gamePanel;
+    }
+
+    public SoundPlayer getSoundPlayer() {
+        return soundPlayer;
     }
 }

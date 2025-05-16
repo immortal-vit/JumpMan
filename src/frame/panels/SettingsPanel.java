@@ -27,6 +27,8 @@ public class SettingsPanel extends JPanel {
     private Slider soundEffectSlider;
     private CheckBox hitboxCheckBox;
     private CheckBox devModCheckBox;
+    private Image tutorialImage;
+    private Image tutorialImageFly;
 
     private MainFrame frame;
 
@@ -35,6 +37,7 @@ public class SettingsPanel extends JPanel {
         setBackground(Color.GRAY);
         this.setOpaque(true);
         initializeComponents();
+        loadPictures();
 
 
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -52,7 +55,7 @@ public class SettingsPanel extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 for (Slider slider : sliders) {
                     slider.mouseDragged(e);
-
+                    frame.setMusicVolume(volumeSlider.getValue());
                 }
                 repaint();
             }
@@ -70,6 +73,7 @@ public class SettingsPanel extends JPanel {
                 for (RelocationButton b : buttons) {
                     if (b.isSelected(e)){
                         frame.switchPanel(b.getWhereToRelocate());
+                        GameSettings.getInstance().save();
                     } else {
                         b.updateSelected(e);
                     }
@@ -85,6 +89,7 @@ public class SettingsPanel extends JPanel {
                 for (Slider slider : sliders) {
                     slider.mouseReleased(e);
                 }
+
                 updateGameSettings();
                 repaint();
             }
@@ -115,6 +120,8 @@ public class SettingsPanel extends JPanel {
         checkBoxes.add(hitboxCheckBox);
         checkBoxes.add(devModCheckBox);
 
+        loadSettings();
+
     }
 
 
@@ -122,6 +129,7 @@ public class SettingsPanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        paintPictures(g);
 
         for (RelocationButton b : buttons) {
             b.render(g,getWidth(),getHeight());
@@ -132,11 +140,14 @@ public class SettingsPanel extends JPanel {
         for (CheckBox c : checkBoxes) {
             c.render(g,getWidth(),getHeight());
         }
+
     }
 
     private void updateGameSettings(){
         GameSettings.getInstance().setShowHitbox(hitboxCheckBox.isChecked());
         GameSettings.getInstance().setDevModeOn(devModCheckBox.isChecked());
+        GameSettings.getInstance().setMusicVolume(volumeSlider.getValue());
+        GameSettings.getInstance().setSoundEffectsVolume(soundEffectSlider.getValue());
     }
     public void updateRelocation(){
         if (frame.getLastPanelType() == PanelType.PAUSE){
@@ -144,6 +155,25 @@ public class SettingsPanel extends JPanel {
         } else {
             backButton.setWhereToRelocate(PanelType.MENU);
         }
+    }
+    private void loadPictures(){
+        tutorialImage = new ImageIcon("src/frame/tutorialPics/jumpKingTutorial.png").getImage();
+        tutorialImageFly = new ImageIcon("src/frame/tutorialPics/jumpKingFlyTutorial.png").getImage();
+    }
+    private void paintPictures(Graphics g){
+        int imageWidth = getWidth() / 4;
+        int imageHeight = getHeight() / 4;
+
+        g.drawImage(tutorialImage, getWidth() - imageWidth/2 - getWidth()/2, 50, imageWidth, imageHeight, this);
+        g.drawImage(tutorialImageFly, getWidth() - imageWidth/2 - getWidth()/2, 100 + imageHeight, imageWidth, imageHeight, this);
+    }
+
+    public void loadSettings() {
+        GameSettings settings = GameSettings.getInstance();
+        hitboxCheckBox.setChecked(settings.isShowHitbox());
+        devModCheckBox.setChecked(settings.isDevModeOn());
+        volumeSlider.setValue(settings.getMusicVolume());
+        soundEffectSlider.setValue(settings.getSoundEffectsVolume());
     }
 
 

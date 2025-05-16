@@ -22,7 +22,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private final float tileSize = 32f;
     private HashMap<Integer, TileMap> floorMap = new HashMap<>();
-    private final int MAX_FLOORS = 5;
+    private final int MAX_FLOORS = 4;
 
     private Thread gameThread;
     private boolean running = false;
@@ -65,8 +65,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void initializePlayer() {
-        player = new Player(100f,VIRTUAL_HEIGHT - 2 * tileSize, 1.25f * tileSize, floorMap.get(floor), this);
-        System.out.println("hrac se vytvoril");
+        player = new Player(100f,VIRTUAL_HEIGHT - 2 * tileSize, 1.25f * tileSize, floorMap.get(floor), this, mainFrame.getSoundPlayer());
         player.setFloorChangeCallback(direction -> {
             switch (direction) {
                 case UP:
@@ -105,24 +104,36 @@ public class GamePanel extends JPanel implements Runnable {
      * the repainting is updating as soon as it can so if we have monitor that supports more than 60hz it will run at the monitor max fps
      */
     public void run() {
-        final int TARGET_FPS = 60;
-        final double TARGET_TIME_BETWEEN_UPDATES = 1000000000.0 / TARGET_FPS;
+        final int TARGET_FPS_UPDATE = 60;
+        final int TARGET_FPS_RENDER = 120;
+
+        final double TIME_BETWEEN_UPDATES = 1_000_000_000.0 / TARGET_FPS_UPDATE;
+        final double TIME_BETWEEN_RENDERS = 1_000_000_000.0 / TARGET_FPS_RENDER;
 
         long lastUpdateTime = System.nanoTime();
-        double delta = 0;
+        long lastRenderTime = System.nanoTime();
+
+        double deltaUpdate = 0;
+        double deltaRender = 0;
 
         while (running) {
             long now = System.nanoTime();
-            double elapsedTime = now - lastUpdateTime;
-            delta += elapsedTime / TARGET_TIME_BETWEEN_UPDATES;
+
+            deltaUpdate += (now - lastUpdateTime) / TIME_BETWEEN_UPDATES;
+            deltaRender += (now - lastRenderTime) / TIME_BETWEEN_RENDERS;
+
             lastUpdateTime = now;
 
-            while (delta >= 1) {
+            if (deltaUpdate >= 1) {
                 update();
-                delta--;
+                deltaUpdate--;
             }
 
-            repaint();
+            if (deltaRender >= 1) {
+                repaint();
+                deltaRender--;
+                lastRenderTime = now;
+            }
 
             try {
                 Thread.sleep(1);

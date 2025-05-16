@@ -27,6 +27,11 @@ public class PlayerControls {
             case KeyEvent.VK_S -> player.setVelocityY(devModeSpeed);
             case KeyEvent.VK_A -> player.setVelocityX(-devModeSpeed);
             case KeyEvent.VK_D -> player.setVelocityX(devModeSpeed);
+            default -> {
+                player.setVelocityX(0);
+                player.setVelocityY(0);
+            }
+
         }
     }
     public void normalSettingsReleased(KeyEvent keyEvent){

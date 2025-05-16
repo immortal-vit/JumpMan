@@ -2,6 +2,7 @@ package game.player;
 
 import frame.panels.GamePanel;
 import game.GameSettings;
+import game.sounds.SoundPlayer;
 import game.tiles.TileMap;
 
 import java.awt.*;
@@ -33,7 +34,7 @@ public class Player {
     private boolean chargingJump = false;
 
     private float chargePower;
-    private final float MAX_CHARGE = 16f;
+    private final float MAX_CHARGE = 15f;
 
     private Direction direction = Direction.RIGHT;
 
@@ -45,6 +46,7 @@ public class Player {
     private final GamePanel gamePanel;
     private FloorChangeCallback floorChangeCallback;
     private int totalJumps;
+    private SoundPlayer soundPlayer;
 
 
 
@@ -55,7 +57,7 @@ public class Player {
      * @param size size of the player this should some multiple of tile size for resizing properly
      * @param tileMap tile map for checking collisions
      */
-    public Player(float startX, float startY, float size, TileMap tileMap, GamePanel gamePanel) {
+    public Player(float startX, float startY, float size, TileMap tileMap, GamePanel gamePanel, SoundPlayer soundPlayer) {
         this.START_X = startX;
         this.START_Y = startY;
         this.x = startX;
@@ -68,6 +70,7 @@ public class Player {
         this.playerControls = new PlayerControls(this,5f);
         this.renderer = new PlayerRenderer();
         this.gamePanel = gamePanel;
+        this.soundPlayer = soundPlayer;
 
 
     }
@@ -103,6 +106,7 @@ public class Player {
             add1ToTotalJumps();
 
             float force = Math.min(chargePower, MAX_CHARGE);
+            soundPlayer.playSoundEffect("src/game/sounds/jump.wav");
 
             velocityY = -force * 1.2f;
             float x_STRENGTH = 0.4f;
