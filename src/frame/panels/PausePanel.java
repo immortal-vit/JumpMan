@@ -11,11 +11,19 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
+/**
+ * class for a pause panel
+ */
 public class PausePanel extends JPanel {
 
     private ArrayList<RelocationButton> buttons;
     private final MainFrame frame;
+    private final String PAUSE = "PAUSED";
 
+    /**
+     * constructor with a mouse listener functions for buttons
+     * @param frame main frame where will be changed the panel after clicking on relocation button
+     */
     public PausePanel(MainFrame frame) {
         this.frame = frame;
         this.setBackground(Color.DARK_GRAY);
@@ -49,6 +57,9 @@ public class PausePanel extends JPanel {
         });
     }
 
+    /**
+     * will create buttons and add them to button array
+     */
     private void initializeButtons() {
         buttons = new ArrayList<>();
 
@@ -61,6 +72,10 @@ public class PausePanel extends JPanel {
         buttons.add(menuButton);
     }
 
+    /**
+     * will paint every component
+     * @param g the <code>Graphics</code> object to protect
+     */
     @Override
     public void paintComponent(Graphics g) {
 
@@ -75,19 +90,23 @@ public class PausePanel extends JPanel {
         }
     }
 
+    /**
+     * will paint paused text
+     * @param g graphics which will be used
+     */
     private void paintText(Graphics g) {
         float fontSize = getHeight() * 0.1f;
         g.setFont(g.getFont().deriveFont(Font.BOLD, fontSize));
 
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth("PAUSED");
+        int textWidth = fm.stringWidth(PAUSE);
         int textHeight = fm.getAscent();
 
         int x = (getWidth() - textWidth) / 2;
         int y = (int) (getHeight() * 0.8f) + textHeight / 2;
 
         g.setColor(Color.WHITE);
-        g.drawString("PAUSED", x, y);
+        g.drawString(PAUSE, x, y);
 
     }
 }

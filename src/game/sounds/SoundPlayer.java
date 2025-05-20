@@ -8,9 +8,16 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import java.io.File;
 
+/**
+ * this is the class for managing the sound
+ */
 public class SoundPlayer {
     private Clip musicClip;
 
+    /**
+     * will play the music indefinitely until the game shut down
+     * @param fileName file from which will be the music played
+     */
     public void playMusic(String fileName) {
         stopMusic();
 
@@ -29,6 +36,9 @@ public class SoundPlayer {
         }
     }
 
+    /**
+     * will stop music
+     */
     public void stopMusic() {
         if (musicClip != null && musicClip.isRunning()) {
             musicClip.stop();
@@ -36,6 +46,9 @@ public class SoundPlayer {
         }
     }
 
+    /**
+     * this will update music based of the settings
+     */
     public void updateMusicVolume() {
         if (musicClip != null) {
             try {
@@ -47,6 +60,10 @@ public class SoundPlayer {
         }
     }
 
+    /**
+     * this will play sound effect
+     * @param path file from which the sound effect will be played
+     */
     public void playSoundEffect(String path) {
         new Thread(() -> {
             try {
@@ -64,6 +81,11 @@ public class SoundPlayer {
         }).start();
     }
 
+    /**
+     * chatgpt helped me with this
+     * @param gainControl
+     * @param volumePercent
+     */
     private void setVolume(FloatControl gainControl, int volumePercent) {
         float range = gainControl.getMaximum() - gainControl.getMinimum();
         float gain = (range * volumePercent / 100f) + gainControl.getMinimum();

@@ -13,6 +13,9 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * panel where the game is located
+ */
 public class GamePanel extends JPanel implements Runnable {
 
     private final int VIRTUAL_WIDTH = 800;
@@ -30,6 +33,10 @@ public class GamePanel extends JPanel implements Runnable {
     private final MainFrame mainFrame;
 
 
+    /**
+     * there is key adapter for movement
+     * @param mainFrame main frame is there for switching panels
+     */
     public GamePanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
 
@@ -64,6 +71,11 @@ public class GamePanel extends JPanel implements Runnable {
         });
     }
 
+    /**
+     * chatgpt helped me with the callback and everything based of the callback.
+     * creates the player.
+     * player will call the callback when he wants to change the floor and game panel will change it for the player
+     */
     private void initializePlayer() {
         player = new Player(100f,VIRTUAL_HEIGHT - 2 * tileSize, 1.25f * tileSize, floorMap.get(floor), this, mainFrame.getSoundPlayer());
         player.setFloorChangeCallback(direction -> {
@@ -82,6 +94,10 @@ public class GamePanel extends JPanel implements Runnable {
         });
     }
 
+    /**
+     * chatgpt helped me with this
+     * will tell the jFrame that the game will be started when Player switches from a different panel to game panel
+     */
     @Override
     public void addNotify() {
         super.addNotify();
@@ -89,6 +105,9 @@ public class GamePanel extends JPanel implements Runnable {
         startGame();
     }
 
+    /**
+     * starts game
+     */
     public void startGame() {
         if (gameThread == null || !gameThread.isAlive()) {
             running = true;
@@ -101,7 +120,7 @@ public class GamePanel extends JPanel implements Runnable {
     /**
      * chatGPT helped me with this
      * the game logic is updating 60 times in a second
-     * the repainting is updating as soon as it can so if we have monitor that supports more than 60hz it will run at the monitor max fps
+     * the repainting is updating 120 times in a second
      */
     public void run() {
         final int TARGET_FPS_UPDATE = 60;
@@ -142,6 +161,10 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
     }
+
+    /**
+     * stops thread and the game
+     */
     public void stopThread (){
         running = false;
         try {
@@ -159,6 +182,12 @@ public class GamePanel extends JPanel implements Runnable {
         player.update();
     }
 
+    /**
+     * Render the game
+     * and drawing the current floor and player.
+     *
+     * @param g the Graphics object used for rendering
+     */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -184,9 +213,15 @@ public class GamePanel extends JPanel implements Runnable {
             floorMap.put(i, new TileMap("src/game/floorMap/floor" + i, tileSize));
         }
     }
+    /**
+     * Triggers the victory screen by switching to the VICTORY panel.
+     */
     public void triggerVictory(){
         mainFrame.switchPanel(PanelType.VICTORY);
     }
+    /**
+     * Resets the game to its initial state, restarting the game and player stats.
+     */
     public void restartGame(){
         floor = 0;
         player.movePlayerToStartPosition();
@@ -195,6 +230,10 @@ public class GamePanel extends JPanel implements Runnable {
 
     public int getFloor() {
         return floor;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
     }
 
     public Map<Integer, TileMap> getFloorMap() {
@@ -208,4 +247,9 @@ public class GamePanel extends JPanel implements Runnable {
     public Player getPlayer() {
         return player;
     }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }
+

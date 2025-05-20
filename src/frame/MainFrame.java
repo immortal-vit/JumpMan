@@ -7,6 +7,9 @@ import game.sounds.SoundPlayer;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * class for frame and every panel in it
+ */
 public class MainFrame {
 
     private CardLayout cardLayout;
@@ -24,10 +27,16 @@ public class MainFrame {
     private SoundPlayer soundPlayer;
 
 
+    /**
+     * will initialize the game
+     */
     public MainFrame() {
         initialize();
     }
 
+    /**
+     * will initialize every component
+     */
     private void initialize(){
         GameSettings.getInstance();
         panelType = PanelType.MENU;
@@ -38,6 +47,10 @@ public class MainFrame {
 
 
     }
+
+    /**
+     * this will create all panels
+     */
     private void createPanels(){
         cardLayout = new CardLayout();
         panelContainer = new JPanel(cardLayout);
@@ -57,6 +70,10 @@ public class MainFrame {
         cardLayout.show(panelContainer, getPanelType().name());
 
     }
+
+    /**
+     * this will create frame and set parameters to it
+     */
     private void createFrame(){
         frame = new JFrame();
         frame.setSize(screenSize);
@@ -67,6 +84,11 @@ public class MainFrame {
         frame.add(panelContainer);
         frame.setVisible(true);
     }
+
+    /**
+     * will switch panel in frame
+     * @param panelType panel type to switch
+     */
     public void switchPanel(PanelType panelType){
 
         if (panelType == PanelType.EXIT){
@@ -84,6 +106,11 @@ public class MainFrame {
 
         frame.repaint();
     }
+
+    /**
+     * this will update cursor if it should show or not
+     * @param panelType is used to detect which function will be used
+     */
     private void managePanelFunctions(PanelType panelType){
         if (panelType == PanelType.GAME) {
             gamePanel.startGame();
@@ -98,24 +125,43 @@ public class MainFrame {
             settingsPanel.updateRelocation();
         }
     }
+
+    /**
+     * will create cursor
+     */
     private void initializeCursor(){
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Image image = toolkit.createImage("");
         invisibleCursor = toolkit.createCustomCursor(image, new Point(0, 0), "invisibleCursor");
     }
 
+    /**
+     * will hide cursor
+     */
     public void hideCursor() {
         frame.setCursor(invisibleCursor);
     }
 
+    /**
+     * will show cursor
+     */
     public void showCursor() {
         frame.setCursor(Cursor.getDefaultCursor());
     }
+
+    /**
+     * this will create a music and play it
+     */
     private void initializeMusic(){
         soundPlayer = new SoundPlayer();
         soundPlayer.playMusic("src/game/sounds/theme.wav");
         System.out.println("playSound");
     }
+
+    /**
+     * set volume for a music
+     * @param newVolumePercent new volume which will be loaded from settings
+     */
     public void setMusicVolume(int newVolumePercent) {
         GameSettings.getInstance().setMusicVolume(newVolumePercent);
         GameSettings.getInstance().save();

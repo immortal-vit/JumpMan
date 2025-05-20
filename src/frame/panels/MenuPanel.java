@@ -13,6 +13,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * class for menu panel
+ */
 public class MenuPanel extends JPanel {
 
     RelocationButton startButton;
@@ -21,6 +24,10 @@ public class MenuPanel extends JPanel {
     ArrayList<RelocationButton> buttons;
     private BufferedImage background;
 
+    /**
+     * this will load background and buttons and will add motion listener
+     * @param frame this is for changing panels we need method switch panel and this method is located in main frame
+     */
     public MenuPanel(MainFrame frame) {
         loadBackground();
         initializeButtons();
@@ -54,6 +61,9 @@ public class MenuPanel extends JPanel {
 
     }
 
+    /**
+     * initialize buttons
+     */
     private void initializeButtons() {
         buttons = new ArrayList<>();
 

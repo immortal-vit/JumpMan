@@ -6,6 +6,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+/**
+ * this is class for the tile map it is for one floor
+ */
 public class TileMap {
     private Tile[][] tiles;
     private float tileSize;
@@ -35,12 +38,21 @@ public class TileMap {
         }
     }
 
+    /**
+     *
+     * @param fileName file from which will be the tile map oaded
+     * @param titleSize tile size
+     */
     public TileMap(String fileName, float titleSize) {
         this.tileSize = titleSize;
         loadMap(fileName);
     }
 
 
+    /**
+     * this will load map from a file
+     * @param fileName name of the file from which it will be loaded
+     */
     private void loadMap(String fileName) {
         try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             rows = Integer.parseInt(br.readLine());
@@ -58,10 +70,14 @@ public class TileMap {
                 }
             }
         }catch (Exception e) {
-            System.out.println("error when loading a map");
+            System.out.println("error when loading a floor (likely the floor is empty)");
         }
     }
 
+    /**
+     * this will draw the tile map in the panel
+     * @param g graphics which will be used
+     */
     public void draw(Graphics2D g ) {
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -79,10 +95,23 @@ public class TileMap {
 
 
     }
+
+    /**
+     * check for the solid tile
+     * @param row where to find
+     * @param col where to find
+     * @return bool if the tile is solid or not
+     */
     public boolean isSolid(int row, int col) {
         if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
         return tiles[row][col] != null && tiles[row][col].getType() == TileType.SOLID;
     }
+    /**
+     * check for the win tile
+     * @param row where to find
+     * @param col where to find
+     * @return bool if the tile is win or not
+     */
     public boolean isWin(int row, int col) {
         if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
         return tiles[row][col] != null && tiles[row][col].getType() == TileType.WIN;

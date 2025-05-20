@@ -6,6 +6,9 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+/**
+ * class for button for relocation
+ */
 public class RelocationButton {
     private final float xPercent, yPercent, widthPercent, heightPercent;
     private int x, y, width, height;
@@ -15,6 +18,17 @@ public class RelocationButton {
     private final Color FONT_COLOR;
     private PanelType whereToRelocate;
 
+    /**
+     *
+     * @param heightPercent height of a button
+     * @param widthPercent width of a button
+     * @param yPercent y location in percent
+     * @param xPercent x location in percent
+     * @param text text inside the button
+     * @param selectedcolor color when player is hovering a curson on it
+     * @param fontColor font color
+     * @param panelType panel where player will be relocated
+     */
     public RelocationButton(float heightPercent, float widthPercent, float yPercent, float xPercent, String text, Color selectedcolor, Color fontColor, PanelType panelType) {
         this.heightPercent = heightPercent;
         this.widthPercent = widthPercent;
@@ -26,6 +40,12 @@ public class RelocationButton {
         this.whereToRelocate = panelType;
     }
 
+    /**
+     * method for resizing
+     * @param panelWidth based of this the button will be resized
+     * @param panelHeight based of this the button will be resized
+     */
+
     public void resize(int panelWidth, int panelHeight) {
         this.x = (int) (panelWidth * xPercent);
         this.y = (int) (panelHeight * yPercent);
@@ -33,6 +53,12 @@ public class RelocationButton {
         this.height = (int) (heightPercent * panelHeight);
     }
 
+    /**
+     * this will render the button
+     * @param g graphics
+     * @param panelWidth used for resizing
+     * @param panelHeight used for resizing
+     */
     public void render (Graphics g,int panelWidth, int panelHeight) {
         Graphics2D g2d = (Graphics2D) g;
 
@@ -68,6 +94,10 @@ public class RelocationButton {
     }
 
 
+    /**
+     * will be updated if the cursor is on the button
+     * @param e mouse event
+     */
     public void updateSelected(MouseEvent e) {
         hovered = e.getX() >= x && e.getX() <= x + width && e.getY() >= y && e.getY() <= y + height;
     }

@@ -14,6 +14,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
+/**
+ * class for setting panel and changing settings
+ */
 public class SettingsPanel extends JPanel {
 
 
@@ -32,6 +35,10 @@ public class SettingsPanel extends JPanel {
 
     private MainFrame frame;
 
+    /**
+     * constructor for managing every function in the panel by using mouse listener
+     * @param frame frame where will be changed panel
+     */
     public SettingsPanel(MainFrame frame) {
         this.frame = frame;
         setBackground(Color.GRAY);
@@ -99,6 +106,9 @@ public class SettingsPanel extends JPanel {
 
     }
 
+    /**
+     * will create every component in this panel
+     */
     private void initializeComponents() {
         buttons = new ArrayList<>();
         sliders = new ArrayList<>();
@@ -125,6 +135,10 @@ public class SettingsPanel extends JPanel {
     }
 
 
+    /**
+     * will paint everything
+     * @param g the <code>Graphics</code> object to protect
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -143,12 +157,19 @@ public class SettingsPanel extends JPanel {
 
     }
 
+    /**
+     * will update instances in singleton settings
+     */
     private void updateGameSettings(){
         GameSettings.getInstance().setShowHitbox(hitboxCheckBox.isChecked());
         GameSettings.getInstance().setDevModeOn(devModCheckBox.isChecked());
         GameSettings.getInstance().setMusicVolume(volumeSlider.getValue());
         GameSettings.getInstance().setSoundEffectsVolume(soundEffectSlider.getValue());
     }
+
+    /**
+     * will update relocation based of if the players enters settings from menu or from a game
+     */
     public void updateRelocation(){
         if (frame.getLastPanelType() == PanelType.PAUSE){
             backButton.setWhereToRelocate(PanelType.PAUSE);
@@ -156,10 +177,19 @@ public class SettingsPanel extends JPanel {
             backButton.setWhereToRelocate(PanelType.MENU);
         }
     }
+
+    /**
+     * will load tutorial pics
+     */
     private void loadPictures(){
         tutorialImage = new ImageIcon("src/frame/tutorialPics/jumpKingTutorial.png").getImage();
         tutorialImageFly = new ImageIcon("src/frame/tutorialPics/jumpKingFlyTutorial.png").getImage();
     }
+
+    /**
+     * will paint pics
+     * @param g graphics which will be used
+     */
     private void paintPictures(Graphics g){
         int imageWidth = getWidth() / 4;
         int imageHeight = getHeight() / 4;
@@ -168,6 +198,9 @@ public class SettingsPanel extends JPanel {
         g.drawImage(tutorialImageFly, getWidth() - imageWidth/2 - getWidth()/2, 100 + imageHeight, imageWidth, imageHeight, this);
     }
 
+    /**
+     * will load settings from a singleton settings
+     */
     public void loadSettings() {
         GameSettings settings = GameSettings.getInstance();
         hitboxCheckBox.setChecked(settings.isShowHitbox());

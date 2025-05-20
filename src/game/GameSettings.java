@@ -3,6 +3,12 @@ package game;
 
 import java.io.*;
 
+/**
+ * chatgpt helped me with the basics
+ * this is singleton
+ * it is static instance which is the only one in the whole game
+ * this class is managing all settings
+ */
 public class GameSettings implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -19,6 +25,10 @@ public class GameSettings implements Serializable {
 
     private GameSettings() {}
 
+    /**
+     *
+     * @return the instance
+     */
     public static GameSettings getInstance() {
         if (instance == null) {
             instance = load();
@@ -26,6 +36,28 @@ public class GameSettings implements Serializable {
         return instance;
     }
 
+    /**
+     * this will serialize the instance
+     */
+    public void save() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            oos.writeObject(this);
+        } catch (IOException e) {
+            System.out.println("something went wrong when loading");
+        }
+    }
+
+    /**
+     * this will load settings
+     * @return loaded instance from "settings.dat"
+     */
+    private static GameSettings load() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            return (GameSettings) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return new GameSettings();
+        }
+    }
     public int getMusicVolume() {
         return musicVolume;
     }
@@ -58,19 +90,5 @@ public class GameSettings implements Serializable {
         this.isDevModeOn = devModeOn;
     }
 
-    public void save() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
-            oos.writeObject(this);
-        } catch (IOException e) {
-            System.out.println("something went wrong when loading");
-        }
-    }
 
-    private static GameSettings load() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-            return (GameSettings) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            return new GameSettings();
-        }
-    }
 }

@@ -11,6 +11,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
+/**
+ * panel which will be displayed after a win
+ */
 public class VictoryPanel extends JPanel {
 
     private ArrayList<RelocationButton> buttons;
@@ -19,6 +22,10 @@ public class VictoryPanel extends JPanel {
     private String winText = "VICTORY";
     private String totalJumpText;
 
+    /**
+     * constructor for managing every function in the panel by using mouse listener
+     * @param frame frame where will be changed panel
+     */
     public VictoryPanel(MainFrame frame) {
         this.frame = frame;
         this.setBackground(Color.DARK_GRAY);
@@ -53,6 +60,9 @@ public class VictoryPanel extends JPanel {
         });
     }
 
+    /**
+     * will initialize buttons
+     */
     private void initializeButtons() {
         buttons = new ArrayList<>();
 
@@ -61,6 +71,11 @@ public class VictoryPanel extends JPanel {
         buttons.add(backToMenu);
     }
 
+
+    /**
+     * will paint components
+     * @param g the <code>Graphics</code> object to protect
+     */
     @Override
     public void paintComponent(Graphics g) {
 
@@ -73,6 +88,10 @@ public class VictoryPanel extends JPanel {
         }
     }
 
+    /**
+     * will paint text
+     * @param g graphics which will be used
+     */
     private void paintText(Graphics g) {
         updateJumpStatistic();
 
@@ -99,6 +118,10 @@ public class VictoryPanel extends JPanel {
         g.drawString(totalJumpText, x, y2);
 
     }
+
+    /**
+     * will update jump statistic after every jump
+     */
     private void updateJumpStatistic(){
         totalJumpsTaken = frame.getGamePanel().getPlayer().getTotalJumps();
         totalJumpText = "total jumps = " + totalJumpsTaken;

@@ -76,7 +76,7 @@ public class Player {
     }
 
     /**
-     * this will check if the player can start charging
+     * this will check if the player can start charging and set charging jump to true
      */
     public void startCharging() {
         if (onGround && !chargingJump) {
@@ -85,7 +85,7 @@ public class Player {
         }
     }
     /**
-     * this checks based of the boolean if the player is charging it will slowly add power for the jump
+     * this checks based of the boolean if the player is charging it will add power for the jump
      */
     private void manageCharging() {
         if (chargingJump) {
@@ -120,6 +120,10 @@ public class Player {
             }
         }
     }
+
+    /**
+     * this will reset jumping and will set charging jump bool to null
+     */
     public void resetChargingJump() {
         chargePower = 0;
         chargingJump = false;
@@ -127,6 +131,7 @@ public class Player {
     /**
      * this is the method for run in game panel
      * this is managing all things for the player that have to be checked and done
+     * this is checking things like velocity and physics
      */
     public void update() {
         if (GameSettings.getInstance().isDevModeOn()){
@@ -153,6 +158,10 @@ public class Player {
         renderer.render(g,this);
 
     }
+
+    /**
+     * will reset the player to a start position.
+     */
     public void movePlayerToStartPosition(){
         setX(getSTART_X());
         setY(getSTART_Y());
@@ -191,10 +200,15 @@ public class Player {
                 (int) (HEIGHT - HITBOX_OFFSET_Y)
         );
     }
+
+    /**
+     * this will reset player stats
+     */
     public void resetStats(){
         totalJumps = 0;
     }
     /**
+     * chatgpt helped me with the whole callback.
      * because of this the runnable will know that he has something to do
      * @param floorChangeCallback this will call callback for runnable in game panel
      *                            chatGPT helped me with this
@@ -211,6 +225,10 @@ public class Player {
         return direction;
     }
 
+    /**
+     * this will set tilemap for the player and also for the physics handler for collisions
+     * @param tileMap tile map which will be set
+     */
     public void setTileMap(TileMap tileMap) {
         this.tileMap = tileMap;
         physicsHandler.setTileMap(tileMap);
@@ -312,5 +330,13 @@ public class Player {
 
     public void add1ToTotalJumps() {
         this.totalJumps++;
+    }
+
+    public FloorChangeCallback getFloorChangeCallback() {
+        return floorChangeCallback;
+    }
+
+    public TileMap getTileMap() {
+        return tileMap;
     }
 }
