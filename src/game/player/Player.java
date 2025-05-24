@@ -106,7 +106,7 @@ public class Player {
             add1ToTotalJumps();
 
             float force = Math.min(chargePower, MAX_CHARGE);
-            soundPlayer.playSoundEffect("src/game/sounds/jump.wav");
+            soundPlayer.playSoundEffect("/sounds/jump.wav");
 
             velocityY = -force * 1.2f;
             float x_STRENGTH = 0.4f;

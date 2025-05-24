@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.Objects;
 
 /**
  * this is class for rendering the player
@@ -30,10 +31,10 @@ public class PlayerRenderer {
      */
     private void loadSprites(){
         try {
-            playerSprites.put(PlayerState.IDLE, ImageIO.read(new File("src/game/player/sprites/playerStanding.png")));
-            playerSprites.put(PlayerState.CHARGING, ImageIO.read(new File("src/game/player/sprites/playerCharging.png")));
-            playerSprites.put(PlayerState.JUMPING, ImageIO.read(new File("src/game/player/sprites/playerJumping.png")));
-            playerSprites.put(PlayerState.FALLING, ImageIO.read(new File("src/game/player/sprites/playerFalling.png")));
+            playerSprites.put(PlayerState.IDLE, ImageIO.read(Objects.requireNonNull(getClass().getResource("/player/playerStanding.png"))));
+            playerSprites.put(PlayerState.CHARGING, ImageIO.read(Objects.requireNonNull(getClass().getResource("/player/playerCharging.png"))));
+            playerSprites.put(PlayerState.JUMPING, ImageIO.read(Objects.requireNonNull(getClass().getResource("/player/playerJumping.png"))));
+            playerSprites.put(PlayerState.FALLING, ImageIO.read(Objects.requireNonNull(getClass().getResource("/player/playerFalling.png"))));
         } catch (IOException e) {
             System.out.println("something went wrong when loading images");
         }

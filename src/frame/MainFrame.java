@@ -154,7 +154,7 @@ public class MainFrame {
      */
     private void initializeMusic(){
         soundPlayer = new SoundPlayer();
-        soundPlayer.playMusic("src/game/sounds/theme.wav");
+        soundPlayer.playMusic("/sounds/theme.wav");
         System.out.println("playSound");
     }
 

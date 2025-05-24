@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * class for setting panel and changing settings
@@ -182,8 +183,8 @@ public class SettingsPanel extends JPanel {
      * will load tutorial pics
      */
     private void loadPictures(){
-        tutorialImage = new ImageIcon("src/frame/tutorialPics/jumpKingTutorial.png").getImage();
-        tutorialImageFly = new ImageIcon("src/frame/tutorialPics/jumpKingFlyTutorial.png").getImage();
+        tutorialImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/tutorial/jumpKingTutorial.png"))).getImage();
+        tutorialImageFly = new ImageIcon(Objects.requireNonNull(getClass().getResource("/tutorial/jumpKingFlyTutorial.png"))).getImage();
     }
 
     /**

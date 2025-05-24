@@ -73,7 +73,7 @@ public class MenuPanel extends JPanel {
     }
     private void loadBackground() {
         try {
-            background = javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResource("/frame/panelBackgrounds/menuBackground.jpg")));
+            background = javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResource("/background/menuBackground.jpg")));
         } catch (Exception e) {
             System.out.println("background could not be loaded");
         }

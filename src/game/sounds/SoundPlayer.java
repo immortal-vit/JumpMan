@@ -6,7 +6,10 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * this is the class for managing the sound
@@ -22,7 +25,8 @@ public class SoundPlayer {
         stopMusic();
 
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(fileName));
+            InputStream bufferedIn = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(fileName)));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
             musicClip = AudioSystem.getClip();
             musicClip.open(audioInputStream);
 
@@ -67,7 +71,8 @@ public class SoundPlayer {
     public void playSoundEffect(String path) {
         new Thread(() -> {
             try {
-                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path));
+                InputStream bufferedIn = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInputStream);
 

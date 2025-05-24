@@ -210,7 +210,7 @@ public class GamePanel extends JPanel implements Runnable {
      */
     private void loadAllFloors() {
         for (int i = 0; i < MAX_FLOORS; i++) {
-            floorMap.put(i, new TileMap("src/game/floorMap/floor" + i, tileSize));
+            floorMap.put(i, new TileMap("/floor/floor" + i, tileSize));
         }
     }
     /**

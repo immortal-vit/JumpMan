@@ -2,9 +2,8 @@ package game.tiles;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
+import java.util.Objects;
 
 /**
  * this is class for the tile map it is for one floor
@@ -25,13 +24,13 @@ public class TileMap {
      */
     static {
         try {
-            tileTypes[0] = new Tile(ImageIO.read(new File("src/game/tiles/images/air.png")), TileType.AIR);
-            tileTypes[1] = new Tile(ImageIO.read(new File("src/game/tiles/images/grassBlock.png")), TileType.SOLID);
-            tileTypes[2] = new Tile(ImageIO.read(new File("src/game/tiles/images/castleBlock.png")), TileType.SOLID);
-            tileTypes[3] = new Tile(ImageIO.read(new File("src/game/tiles/images/castleBackground.png")), TileType.AIR);
-            tileTypes[4] = new Tile(ImageIO.read(new File("src/game/tiles/images/wallWithTorch.png")), TileType.AIR);
-            tileTypes[5] = new Tile(ImageIO.read(new File("src/game/tiles/images/window.png")), TileType.AIR);
-            tileTypes[9] = new Tile(ImageIO.read(new File("src/game/tiles/images/star.png")), TileType.WIN);
+            tileTypes[0] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/air.png"))), TileType.AIR);
+            tileTypes[1] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/grassBlock.png"))), TileType.SOLID);
+            tileTypes[2] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/castleBlock.png"))), TileType.SOLID);
+            tileTypes[3] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/castleBackground.png"))), TileType.AIR);
+            tileTypes[4] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/wallWithTorch.png"))), TileType.AIR);
+            tileTypes[5] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/window.png"))), TileType.AIR);
+            tileTypes[9] = new Tile(ImageIO.read(Objects.requireNonNull(TileMap.class.getResourceAsStream("/tiles/star.png"))), TileType.WIN);
 
         } catch (Exception e) {
             System.out.println("error when loading blocks");
@@ -54,7 +53,7 @@ public class TileMap {
      * @param fileName name of the file from which it will be loaded
      */
     private void loadMap(String fileName) {
-        try(BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream(fileName))))) {
             rows = Integer.parseInt(br.readLine());
             cols = Integer.parseInt(br.readLine());
 
